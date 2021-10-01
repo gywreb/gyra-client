@@ -6,11 +6,11 @@ import {
   InputRightElement,
 } from '@chakra-ui/input';
 import { Box, Flex, Text } from '@chakra-ui/layout';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { BaseStyles } from 'src/configs/styles';
 import LogoBanner from '../../assets/images/gyra-banner-logo-3-trans.png';
-import { MdEmail, MdLock } from 'react-icons/md';
+import { MdAccountBox, MdEmail, MdLock } from 'react-icons/md';
 import { AiFillEyeInvisible } from 'react-icons/ai';
 import Icon from '@chakra-ui/icon';
 import { FormControl, FormErrorMessage } from '@chakra-ui/form-control';
@@ -26,18 +26,24 @@ const Form = chakra('form', {
   },
 });
 
-const Login = () => {
+const Register = () => {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
     setValue,
+    watch,
   } = useForm();
 
-  const onLogin = data => {
+  const password = useRef({});
+  password.current = watch('password', '');
+
+  const onRegister = data => {
     console.log(data);
   };
+
+  useEffect(() => {}, [errors]);
 
   return (
     <Flex
@@ -49,7 +55,7 @@ const Login = () => {
       bgColor="orange.50"
     >
       <Flex
-        width="70%"
+        // width="70%"
         height="100%"
         bgColor="orange.50"
         flexGrow={1}
@@ -90,11 +96,12 @@ const Login = () => {
           <Flex
             pt={10}
             pb={10}
-            width="100%"
             bgColor="white"
             alignItems="center"
             justifyContent="center"
             flexDirection="column"
+            maxWidth={500}
+            width="100%"
             //boxShadow={BaseStyles.shadowConfig}
             //borderRadius={14}
           >
@@ -105,10 +112,35 @@ const Login = () => {
                 fontWeight="bold"
                 textAlign="center"
               >
-                Log in to your account
+                Create your new account
               </Text>
             </Box>
-            <Form onSubmit={handleSubmit(onLogin)} pl={8} pr={8}>
+            <Form onSubmit={handleSubmit(onRegister)} pl={8} pr={8}>
+              <FormControl isInvalid={errors.username}>
+                <InputGroup size="lg" mt={4}>
+                  <InputLeftElement
+                    children={<Icon as={MdAccountBox} color="orange.700" />}
+                  />
+                  <Input
+                    autoComplete="off"
+                    variant="filled"
+                    id="username"
+                    type="username"
+                    placeholder="Username"
+                    {...register('username', {
+                      required: 'Username is required',
+                      minLength: {
+                        value: 4,
+                        message: 'Username must be atleast 4 characters',
+                      },
+                    })}
+                    focusBorderColor="orange.400"
+                  />
+                </InputGroup>
+                <FormErrorMessage mb={4}>
+                  {errors.username && errors.username.message}
+                </FormErrorMessage>
+              </FormControl>
               <FormControl isInvalid={errors.email}>
                 <InputGroup size="lg" mt={4}>
                   <InputLeftElement
@@ -160,6 +192,34 @@ const Login = () => {
                   {errors.password && errors.password.message}
                 </FormErrorMessage>
               </FormControl>
+              <FormControl isInvalid={errors.confirmPassword}>
+                <InputGroup size="lg" mt={4}>
+                  <InputLeftElement
+                    children={<Icon as={MdLock} color="orange.700" />}
+                  />
+                  <Input
+                    variant="filled"
+                    id="confirmPassword"
+                    type="confirmPassword"
+                    placeholder="Confirm Password"
+                    {...register('confirmPassword', {
+                      required: 'Confirm Password is required',
+                      validate: value =>
+                        value === password.current ||
+                        'Confirm Password do not match',
+                    })}
+                    focusBorderColor="orange.400"
+                  />
+                  <InputRightElement
+                    children={
+                      <Icon as={AiFillEyeInvisible} color="orange.700" />
+                    }
+                  />
+                </InputGroup>
+                <FormErrorMessage>
+                  {errors.confirmPassword && errors.confirmPassword.message}
+                </FormErrorMessage>
+              </FormControl>
               <Button
                 size="lg"
                 colorScheme="orange"
@@ -167,12 +227,12 @@ const Login = () => {
                 isFullWidth
                 mt={8}
               >
-                SIGN-IN
+                SIGN-UP
               </Button>
               <Flex mt={4} alignItems="center" justifyContent="center">
-                <Link to={ROUTE_KEY.Register}>
+                <Link to={ROUTE_KEY.Home}>
                   <Text pl={2} color="orange.400">
-                    Sign up for an account
+                    Already has an account?
                   </Text>
                 </Link>
               </Flex>
@@ -184,4 +244,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
