@@ -6,19 +6,23 @@ import {
   InputRightElement,
 } from '@chakra-ui/input';
 import { Box, Flex, Text } from '@chakra-ui/layout';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { BaseStyles } from 'src/configs/styles';
 import LogoBanner from '../../assets/images/gyra-banner-logo-3-trans.png';
-import { MdEmail, MdLock } from 'react-icons/md';
-import { AiFillEyeInvisible } from 'react-icons/ai';
+import { MdAccountBox, MdEmail, MdLock } from 'react-icons/md';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import Icon from '@chakra-ui/icon';
 import { FormControl, FormErrorMessage } from '@chakra-ui/form-control';
 import { chakra } from '@chakra-ui/system';
 import { Button } from '@chakra-ui/button';
 import { ROUTE_KEY } from 'src/configs/router';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useHistory } from 'react-router-dom';
 import MotionDiv from 'src/components/MotionDiv/MotionDiv';
+import { useDispatch, useSelector } from 'react-redux';
+import QueryString from 'query-string';
+import { login } from 'src/store/auth/actions';
+import { toast, useToast } from '@chakra-ui/toast';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -35,8 +39,32 @@ const Login = () => {
     setValue,
   } = useForm();
 
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  const handleShowPassword = () => {
+    setIsShowPassword(!isShowPassword);
+  };
+
+  const location = useLocation();
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const toast = useToast();
+  const { loading } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    console.log(location?.search);
+    if (location && location?.search) {
+      const { username } = QueryString.parse(location.search);
+      console.log(username);
+      if (username) setValue('username', username);
+    }
+    return () => {
+      location.search = null;
+      reset();
+    };
+  }, [location.search]);
+
   const onLogin = data => {
-    console.log(data);
+    dispatch(login(data, history, toast, reset));
   };
 
   return (
@@ -109,30 +137,24 @@ const Login = () => {
               </Text>
             </Box>
             <Form onSubmit={handleSubmit(onLogin)} pl={8} pr={8}>
-              <FormControl isInvalid={errors.email}>
+              <FormControl isInvalid={errors.username}>
                 <InputGroup size="lg" mt={4}>
                   <InputLeftElement
-                    children={<Icon as={MdEmail} color="orange.700" />}
+                    children={<Icon as={MdAccountBox} color="orange.700" />}
                   />
                   <Input
                     autoComplete="off"
                     variant="filled"
-                    id="email"
-                    type="email"
-                    placeholder="Email"
-                    {...register('email', {
-                      required: 'Email is required',
-                      pattern: {
-                        value:
-                          /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
-                        message: 'Invalid email',
-                      },
+                    id="username"
+                    placeholder="Username or email"
+                    {...register('username', {
+                      required: 'Username or email is required',
                     })}
                     focusBorderColor="orange.400"
                   />
                 </InputGroup>
                 <FormErrorMessage mb={4}>
-                  {errors.email && errors.email.message}
+                  {errors.username && errors.username.message}
                 </FormErrorMessage>
               </FormControl>
               <FormControl isInvalid={errors.password}>
@@ -143,18 +165,22 @@ const Login = () => {
                   <Input
                     variant="filled"
                     id="password"
-                    type="password"
+                    type={isShowPassword ? 'text' : 'password'}
                     placeholder="Password"
                     {...register('password', {
                       required: 'Password is required',
                     })}
                     focusBorderColor="orange.400"
                   />
-                  <InputRightElement
-                    children={
-                      <Icon as={AiFillEyeInvisible} color="orange.700" />
-                    }
-                  />
+                  <InputRightElement>
+                    <Button onClick={handleShowPassword}>
+                      {isShowPassword ? (
+                        <Icon as={AiFillEyeInvisible} color="orange.700" />
+                      ) : (
+                        <Icon as={AiFillEye} color="orange.700" />
+                      )}
+                    </Button>
+                  </InputRightElement>
                 </InputGroup>
                 <FormErrorMessage>
                   {errors.password && errors.password.message}
@@ -166,6 +192,7 @@ const Login = () => {
                 type="submit"
                 isFullWidth
                 mt={8}
+                isLoading={loading}
               >
                 SIGN-IN
               </Button>

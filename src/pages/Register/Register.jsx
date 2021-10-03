@@ -6,19 +6,23 @@ import {
   InputRightElement,
 } from '@chakra-ui/input';
 import { Box, Flex, Text } from '@chakra-ui/layout';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { BaseStyles } from 'src/configs/styles';
 import LogoBanner from '../../assets/images/gyra-banner-logo-3-trans.png';
 import { MdAccountBox, MdEmail, MdLock } from 'react-icons/md';
-import { AiFillEyeInvisible } from 'react-icons/ai';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import Icon from '@chakra-ui/icon';
 import { FormControl, FormErrorMessage } from '@chakra-ui/form-control';
 import { chakra } from '@chakra-ui/system';
 import { Button } from '@chakra-ui/button';
 import { ROUTE_KEY } from 'src/configs/router';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import MotionDiv from 'src/components/MotionDiv/MotionDiv';
+import { useDispatch } from 'react-redux';
+import { useToast } from '@chakra-ui/toast';
+import { registerAccount } from 'src/store/auth/actions';
+import { useSelector } from 'react-redux';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -36,12 +40,34 @@ const Register = () => {
     watch,
   } = useForm();
 
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isShowConfirmPass, setIsShowConfirmPass] = useState(false);
+
+  const handleShowPassword = () => {
+    setIsShowPassword(!isShowPassword);
+  };
+
+  const handleShowConfirmPassword = () => {
+    setIsShowConfirmPass(!isShowConfirmPass);
+  };
+
+  const { loading } = useSelector(state => state.auth);
+  const toast = useToast();
+  const dispatch = useDispatch();
+  const history = useHistory();
+
   const password = useRef({});
   password.current = watch('password', '');
 
   const onRegister = data => {
-    console.log(data);
+    dispatch(registerAccount(data, history, toast, reset));
   };
+
+  useEffect(() => {
+    return () => {
+      reset();
+    };
+  }, []);
 
   useEffect(() => {}, [errors]);
 
@@ -175,18 +201,22 @@ const Register = () => {
                   <Input
                     variant="filled"
                     id="password"
-                    type="password"
+                    type={isShowPassword ? 'text' : 'password'}
                     placeholder="Password"
                     {...register('password', {
                       required: 'Password is required',
                     })}
                     focusBorderColor="orange.400"
                   />
-                  <InputRightElement
-                    children={
-                      <Icon as={AiFillEyeInvisible} color="orange.700" />
-                    }
-                  />
+                  <InputRightElement>
+                    <Button onClick={handleShowPassword}>
+                      {isShowPassword ? (
+                        <Icon as={AiFillEyeInvisible} color="orange.700" />
+                      ) : (
+                        <Icon as={AiFillEye} color="orange.700" />
+                      )}
+                    </Button>
+                  </InputRightElement>
                 </InputGroup>
                 <FormErrorMessage>
                   {errors.password && errors.password.message}
@@ -200,7 +230,7 @@ const Register = () => {
                   <Input
                     variant="filled"
                     id="confirmPassword"
-                    type="confirmPassword"
+                    type={isShowConfirmPass ? 'text' : 'password'}
                     placeholder="Confirm Password"
                     {...register('confirmPassword', {
                       required: 'Confirm Password is required',
@@ -210,11 +240,15 @@ const Register = () => {
                     })}
                     focusBorderColor="orange.400"
                   />
-                  <InputRightElement
-                    children={
-                      <Icon as={AiFillEyeInvisible} color="orange.700" />
-                    }
-                  />
+                  <InputRightElement>
+                    <Button onClick={handleShowConfirmPassword}>
+                      {isShowConfirmPass ? (
+                        <Icon as={AiFillEyeInvisible} color="orange.700" />
+                      ) : (
+                        <Icon as={AiFillEye} color="orange.700" />
+                      )}
+                    </Button>
+                  </InputRightElement>
                 </InputGroup>
                 <FormErrorMessage>
                   {errors.confirmPassword && errors.confirmPassword.message}
@@ -226,6 +260,7 @@ const Register = () => {
                 type="submit"
                 isFullWidth
                 mt={8}
+                isLoading={loading}
               >
                 SIGN-UP
               </Button>
