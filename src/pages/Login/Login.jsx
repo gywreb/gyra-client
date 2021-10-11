@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { BaseStyles } from 'src/configs/styles';
 import LogoBanner from '../../assets/images/gyra-banner-logo-3-trans.png';
-import { MdAccountBox, MdEmail, MdLock } from 'react-icons/md';
+import { MdAccountBox, MdLock } from 'react-icons/md';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import Icon from '@chakra-ui/icon';
 import { FormControl, FormErrorMessage } from '@chakra-ui/form-control';
@@ -18,11 +18,12 @@ import { chakra } from '@chakra-ui/system';
 import { Button } from '@chakra-ui/button';
 import { ROUTE_KEY } from 'src/configs/router';
 import { Link, useLocation, useHistory } from 'react-router-dom';
-import MotionDiv from 'src/components/MotionDiv/MotionDiv';
+
 import { useDispatch, useSelector } from 'react-redux';
 import QueryString from 'query-string';
 import { login } from 'src/store/auth/actions';
 import { toast, useToast } from '@chakra-ui/toast';
+import MotionDiv from 'src/components/MotionDiv/MotionDiv';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -123,6 +124,7 @@ const Login = () => {
             alignItems="center"
             justifyContent="center"
             flexDirection="column"
+            maxWidth={500}
             //boxShadow={BaseStyles.shadowConfig}
             //borderRadius={14}
           >

@@ -6,6 +6,8 @@ import {
   BASEAUTH_USER,
 } from 'src/configs/api';
 import { ROUTE_KEY } from 'src/configs/router';
+import { NAVIGATION_KEY } from '../../configs/navigation';
+import { SET_CURRENT_ACTIVE } from '../navigation/action';
 
 // - REGISTER
 export const REGISTER_REQUEST = '@AUTH/REGISTER_REQUEST';
@@ -35,7 +37,7 @@ export const registerAccount =
       toast({
         title: capitalize('you have successfully sign up'),
         status: 'success',
-        position: 'top-right',
+        position: 'top',
         isClosable: true,
         duration: 3000,
       });
@@ -47,9 +49,9 @@ export const registerAccount =
     } catch (error) {
       console.log(error);
       toast({
-        title: capitalize(error.response?.data?.message || 'Register Error'),
+        title: error.response?.data?.message || 'Register Error',
         status: 'error',
-        position: 'top-right',
+        position: 'top',
         isClosable: true,
         duration: 3000,
       });
@@ -76,7 +78,7 @@ export const login = (params, history, toast, resetForm) => async dispatch => {
     toast({
       title: `Welcome back ${params.username}!`,
       status: 'success',
-      position: 'top-right',
+      position: 'top',
       isClosable: true,
       duration: 3000,
     });
@@ -84,12 +86,16 @@ export const login = (params, history, toast, resetForm) => async dispatch => {
     history.replace({
       pathname: ROUTE_KEY.Home,
     });
+    dispatch({
+      type: SET_CURRENT_ACTIVE,
+      payload: { currentActive: NAVIGATION_KEY.PROJECT },
+    });
   } catch (error) {
     console.log(error);
     toast({
-      title: capitalize(error.response?.data?.message || 'Login Error'),
+      title: error.response?.data?.message || 'Login Error',
       status: 'error',
-      position: 'top-right',
+      position: 'top',
       isClosable: true,
       duration: 3000,
     });

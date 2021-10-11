@@ -7,7 +7,11 @@ const AuthRoute = ({ path, component }) => {
   const { userInfo, token } = useSelector(state => state.auth);
   return (
     <Route path={path} exact>
-      {userInfo || token ? <Redirect to={ROUTE_KEY.Home} exact /> : component}
+      {userInfo || token ? (
+        <Redirect to={ROUTE_KEY.Projects} exact />
+      ) : (
+        component
+      )}
     </Route>
   );
 };
