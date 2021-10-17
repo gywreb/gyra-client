@@ -27,7 +27,7 @@ const HeaderBar = () => {
       pr={8}
       boxShadow={BaseStyles.shadowConfig}
       justifyContent="space-between"
-      // position="sticky"
+      position="fixed"
     >
       <Flex alignItems="center">
         <Image src={LogoGyraBanner} width={180} />

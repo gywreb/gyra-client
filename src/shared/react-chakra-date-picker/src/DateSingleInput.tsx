@@ -1,25 +1,32 @@
-import { Box } from '@chakra-ui/react'
-import { getInputValue, OnDatesChangeProps, START_DATE } from '@datepicker-react/hooks'
-import React, { forwardRef, Ref, useEffect, useRef, useState } from 'react'
-import { Input, InputProps } from './components'
-import { StylesProvider } from './context/StylesContext'
-import { Datepicker, DatepickerElement, DatepickerProps } from './Datepicker'
-import { DateSingleInputPhrases, dateSingleInputPhrases } from './phrases'
-import { InputDate } from './types'
-import { defaultDisplayFormat } from './utils/formatters'
+import { Box } from '@chakra-ui/react';
+import {
+  getInputValue,
+  OnDatesChangeProps,
+  START_DATE,
+} from '@datepicker-react/hooks';
+import React, { forwardRef, Ref, useEffect, useRef, useState } from 'react';
+import { Input, InputProps } from './components';
+import { StylesProvider } from './context/StylesContext';
+import { Datepicker, DatepickerElement, DatepickerProps } from './Datepicker';
+import { DateSingleInputPhrases, dateSingleInputPhrases } from './phrases';
+import { InputDate } from './types';
+import { defaultDisplayFormat } from './utils/formatters';
 
 export interface OnDateChangeProps {
-  date: InputDate
-  showDatepicker: boolean
+  date: InputDate;
+  showDatepicker: boolean;
 }
 
-export interface DateSingleInputProps extends Partial<InputProps>, Partial<DatepickerProps> {
-  onFocusChange?(focusInput: boolean): void
-  phrases?: DateSingleInputPhrases
-  placement?: 'top' | 'bottom'
-  showDatepicker?: boolean
-  date?: InputDate
-  showResetDate?: boolean
+export interface DateSingleInputProps
+  extends Partial<InputProps>,
+    Partial<DatepickerProps> {
+  onFocusChange?(focusInput: boolean): void;
+  phrases?: DateSingleInputPhrases;
+  placement?: 'top' | 'bottom';
+  showDatepicker?: boolean;
+  date?: InputDate;
+  showResetDate?: boolean;
+  isDisabled?: boolean;
 }
 
 export const DateSingleInput = forwardRef(
@@ -58,34 +65,37 @@ export const DateSingleInput = forwardRef(
       vertical = false,
       weekdayLabelFormat,
       allowEditableInputs = false,
+      isDisabled = false,
     }: DateSingleInputProps,
-    ref: Ref<HTMLInputElement>,
+    ref: Ref<HTMLInputElement>
   ) => {
-    const datepickerRef = useRef<DatepickerElement>(null)
-    const datepickerWrapperRef = useRef<HTMLDivElement>(null)
+    const datepickerRef = useRef<DatepickerElement>(null);
+    const datepickerWrapperRef = useRef<HTMLDivElement>(null);
 
-    const [date, setDate] = useState<InputDate>(value ? new Date(value) : dateProp)
-    const [showDatepicker, setShowDatepicker] = useState(showDatepickerProp)
-
-    useEffect(() => {
-      onChange(date)
-    }, [date, onChange])
+    const [date, setDate] = useState<InputDate>(
+      value ? new Date(value) : dateProp
+    );
+    const [showDatepicker, setShowDatepicker] = useState(showDatepickerProp);
 
     useEffect(() => {
-      onFocusChange(showDatepicker)
-    }, [onFocusChange, showDatepicker])
+      onChange(date);
+    }, [date, onChange]);
+
+    useEffect(() => {
+      onFocusChange(showDatepicker);
+    }, [onFocusChange, showDatepicker]);
 
     useEffect(() => {
       if (typeof window !== 'undefined') {
-        window.addEventListener('click', onClickOutsideHandler)
+        window.addEventListener('click', onClickOutsideHandler);
       }
       return () => {
-        window.removeEventListener('click', onClickOutsideHandler)
-      }
-    })
+        window.removeEventListener('click', onClickOutsideHandler);
+      };
+    });
 
     function handleOnFocusChange(show: boolean) {
-      setShowDatepicker(show)
+      setShowDatepicker(show);
     }
 
     function onClickOutsideHandler(event: Event) {
@@ -96,28 +106,35 @@ export const DateSingleInput = forwardRef(
         // @ts-ignore
         !datepickerWrapperRef.current.contains(event.target)
       ) {
-        handleOnFocusChange(false)
+        handleOnFocusChange(false);
       }
     }
 
     function handleDatepickerClose() {
-      handleOnFocusChange(false)
-      onClose()
+      handleOnFocusChange(false);
+      onClose();
     }
 
     function handleOnDatesChange(data: OnDatesChangeProps) {
-      handleOnFocusChange(data.focusedInput !== null)
-      setDate(data.startDate)
+      handleOnFocusChange(data.focusedInput !== null);
+      setDate(data.startDate);
     }
 
     function handleInputChange(date: Date) {
-      if (datepickerRef && datepickerRef.current && datepickerRef.current.onDateSelect) {
-        datepickerRef.current.onDateSelect(date)
+      if (
+        datepickerRef &&
+        datepickerRef.current &&
+        datepickerRef.current.onDateSelect
+      ) {
+        datepickerRef.current.onDateSelect(date);
       }
     }
 
     return (
-      <StylesProvider styles={styles} overwriteDefaultStyles={overwriteDefaultStyles}>
+      <StylesProvider
+        styles={styles}
+        overwriteDefaultStyles={overwriteDefaultStyles}
+      >
         <Box position="relative" ref={datepickerWrapperRef}>
           <Input
             ref={ref}
@@ -131,12 +148,13 @@ export const DateSingleInput = forwardRef(
             isActive={showDatepicker}
             onChange={handleInputChange}
             onClick={() => {
-              handleOnFocusChange(true)
-              onClick()
+              handleOnFocusChange(true);
+              onClick();
             }}
             disableAccessibility={false}
             iconComponent={iconComponent}
             allowEditableInputs={allowEditableInputs}
+            isDisabled={isDisabled}
           />
 
           <Box
@@ -177,6 +195,6 @@ export const DateSingleInput = forwardRef(
           </Box>
         </Box>
       </StylesProvider>
-    )
-  },
-)
+    );
+  }
+);

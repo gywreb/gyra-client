@@ -10,6 +10,7 @@ const GTextInput = ({
   placeholder,
   isMultiline,
   boxProps,
+  name,
   ...restInputProps
 }) => {
   return (
@@ -42,6 +43,7 @@ const GTextInput = ({
       <InputGroup maxWidth="100%">
         {isMultiline ? (
           <Textarea
+            name={name}
             placeholder={placeholder || null}
             resize={'vertical'}
             focusBorderColor="orange.500"
@@ -49,8 +51,8 @@ const GTextInput = ({
           />
         ) : (
           <Input
+            name={name}
             variant="filled"
-            id="search"
             type="text"
             focusBorderColor="orange.500"
             placeholder={placeholder || null}

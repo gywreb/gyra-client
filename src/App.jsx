@@ -4,13 +4,16 @@ import AppNavigation from './navigation/AppNavigation';
 import { Provider } from 'react-redux';
 import { persistor, store } from './store/store';
 import { PersistGate } from 'redux-persist/integration/react';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 const App = () => {
   return (
     <ChakraProvider resetCSS>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <AppNavigation />
+          <Router>
+            <AppNavigation />
+          </Router>
         </PersistGate>
       </Provider>
     </ChakraProvider>

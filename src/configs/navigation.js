@@ -1,10 +1,10 @@
 import { ROUTE_KEY } from './router';
 
 export const NAVIGATION_KEY = {
-  PROJECT: 'project',
-  TASK: 'task',
-  PEOPLE: 'people',
-  TEAM: 'team',
+  PROJECT: '/projects',
+  TASK: '/tasks',
+  PEOPLE: '/people',
+  TEAM: '/team',
 };
 
 export const APP_NAVIGATIONS = [

@@ -6,12 +6,12 @@ const GLayout = ({ children }) => {
   return (
     <Box
       width="100%"
-      height="100vh"
       // bgColor="orange.50"
       alignItems="center"
       overflowY="hidden"
     >
       <HeaderBar />
+      <Flex height={70} />
       {children}
     </Box>
   );

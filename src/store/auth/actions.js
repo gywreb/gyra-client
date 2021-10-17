@@ -19,6 +19,11 @@ export const LOGIN_REQUEST = '@AUTH/LOGIN_REQUEST';
 export const LOGIN_SUCCESS = '@AUTH/LOGIN_SUCCESS';
 export const LOGIN_ERROR = '@AUTH/LOGIN_ERROR';
 
+// - GET CURRENT
+export const GET_CURRENT_REQUEST = '@AUTH/GET_CURRENT_REQUEST';
+export const GET_CURRENT_SUCCESS = '@AUTH/GET_CURRENT_SUCCESS';
+export const GET_CURRENT_ERROR = '@AUTH/GET_CURRENT_ERROR';
+
 export const registerAccount =
   (params, history, toast, resetForm) => async dispatch => {
     dispatch({ type: REGISTER_REQUEST });
@@ -100,5 +105,49 @@ export const login = (params, history, toast, resetForm) => async dispatch => {
       duration: 3000,
     });
     dispatch({ type: LOGIN_ERROR, payload: { error } });
+  }
+};
+
+export const getCurrent = (history, toast, currentPath) => async dispatch => {
+  delete apiClient.defaults.headers.common['Authorization'];
+  dispatch({ type: GET_CURRENT_REQUEST });
+  const token = localStorage.getItem('jwt');
+  try {
+    const {
+      data: {
+        data: { userInfo },
+      },
+    } = await apiClient.get(AUTH_API.getCurrent, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    localStorage.setItem('jwt', token);
+    toast({
+      title: `Welcome back ${userInfo.username}!`,
+      position: 'top',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+    dispatch({ type: GET_CURRENT_SUCCESS, payload: { userInfo, token } });
+    if (currentPath) {
+      dispatch({
+        type: SET_CURRENT_ACTIVE,
+        payload: { currentActive: currentPath },
+      });
+      history.push(currentPath);
+    } else {
+      dispatch({
+        type: SET_CURRENT_ACTIVE,
+        payload: { currentActive: NAVIGATION_KEY.PROJECT },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    dispatch({
+      type: GET_CURRENT_ERROR,
+      payload: { error: error?.response?.data || 'error' },
+    });
+    history.push(ROUTE_KEY.Login);
   }
 };
