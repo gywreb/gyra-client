@@ -9,12 +9,13 @@ import Tasks from 'src/pages/Tasks/Tasks';
 import { getCurrent } from 'src/store/auth/actions';
 import Login from '../pages/Login/Login';
 import People from '../pages/People/People';
-import ProjectOverview from '../pages/ProjectOverview/ProjectOverview';
 import Register from '../pages/Register/Register';
 import Team from '../pages/Team/Team';
 import AuthRoute from './AuthRoute/AuthRoute';
 import PrivateRoute from './PrivateRoute/PrivateRoute';
-import { useHistory, useLocation } from 'react-router';
+import { Switch, useHistory, useLocation } from 'react-router';
+import Board from 'src/pages/Board/Board';
+import G404Page from 'src/components/G404Page/G404Page';
 
 const AppNavigation = () => {
   const { userInfo, token, getCurrentLoading } = useSelector(
@@ -25,8 +26,6 @@ const AppNavigation = () => {
   const toast = useToast();
   const location = useLocation();
 
-  console.log(location);
-
   useEffect(() => {
     if (location.pathname)
       dispatch(getCurrent(history, toast, location.pathname));
@@ -35,7 +34,7 @@ const AppNavigation = () => {
   if (getCurrentLoading) return <GOverlaySpinner />;
   else
     return (
-      <>
+      <Switch>
         <Route
           path={ROUTE_KEY.Home}
           exact
@@ -51,14 +50,11 @@ const AppNavigation = () => {
         <PrivateRoute path={ROUTE_KEY.Tasks} component={<Tasks />} />
         <PrivateRoute path={ROUTE_KEY.Team} component={<Team />} />
         <PrivateRoute path={ROUTE_KEY.People} component={<People />} />
-        <Route
-          path={ROUTE_KEY.ProjectDetail}
-          exact
-          component={ProjectOverview}
-        />
+        <PrivateRoute path={ROUTE_KEY.Board} component={<Board />} />
         <AuthRoute path={ROUTE_KEY.Register} component={<Register />} />
         <AuthRoute path={ROUTE_KEY.Login} component={<Login />} />
-      </>
+        <Route path="*" component={G404Page} />
+      </Switch>
     );
 };
 

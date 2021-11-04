@@ -1,8 +1,14 @@
 {
-  "include": ["src", "types", "types.d.ts"],
+  "include": [
+    "src",
+    "types",
+    "types.d.ts"
+  ],
   "compilerOptions": {
-    "module": "esnext",
-    "lib": ["dom", "esnext"],
+    "lib": [
+      "dom",
+      "esnext"
+    ],
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
@@ -24,6 +30,7 @@
     "target": "ES6",
     "allowJs": true,
     "resolveJsonModule": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "module": "esnext"
   }
 }

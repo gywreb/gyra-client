@@ -5,10 +5,15 @@ import {
   GET_PROJECTS_ERROR,
   GET_PROJECTS_REQUEST,
   GET_PROJECTS_SUCCESS,
+  GET_PROJECT_DETAIL_ERROR,
+  GET_PROJECT_DETAIL_REQUEST,
+  GET_PROJECT_DETAIL_SUCCESS,
 } from './action';
 
 const initialState = {
   projectList: [],
+  isGetProjectDetail: false,
+  currentProject: null,
   createLoading: false,
   getLoading: false,
   error: null,
@@ -47,6 +52,25 @@ export default function projectReducer(state = initialState, action) {
     }
     case GET_PROJECTS_ERROR: {
       return { ...state, getLoading: false, error: null, projectList: null };
+    }
+    case GET_PROJECT_DETAIL_REQUEST: {
+      return { ...state, isGetProjectDetail: true, error: null };
+    }
+    case GET_PROJECT_DETAIL_SUCCESS: {
+      return {
+        ...state,
+        isGetProjectDetail: false,
+        currentProject: action.payload.currentProject,
+        error: null,
+      };
+    }
+    case GET_PROJECT_DETAIL_ERROR: {
+      return {
+        ...state,
+        isGetProjectDetail: false,
+        currentProject: null,
+        error: action.payload.error,
+      };
     }
     default:
       return state;

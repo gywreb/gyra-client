@@ -10,6 +10,8 @@ export const BASEAUTH_PASSWORD = '123456';
 
 const AUTH_ROUTE = '/auth';
 const PROJECT_ROUTE = '/project';
+const COLUMN_ROUTE = '/column';
+const TASK_ROUTE = '/task';
 
 export const AUTH_API = {
   register: `${AUTH_ROUTE}/register`,
@@ -20,6 +22,16 @@ export const AUTH_API = {
 export const PROJECT_API = {
   createProject: `${PROJECT_ROUTE}/create-project`,
   getProjects: `${PROJECT_ROUTE}`,
+};
+
+export const COLUMN_API = {
+  createColumn: `${COLUMN_ROUTE}/create-column`,
+  getColumnByProject: projectId => `${COLUMN_ROUTE}/${projectId}`,
+};
+
+export const TASK_API = {
+  createTask: `${TASK_ROUTE}/create-task`,
+  getTaskListByProject: projectId => `${TASK_ROUTE}/${projectId}`,
 };
 
 export const apiClient = axios.create({

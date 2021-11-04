@@ -122,13 +122,13 @@ export const getCurrent = (history, toast, currentPath) => async dispatch => {
     });
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     localStorage.setItem('jwt', token);
-    toast({
-      title: `Welcome back ${userInfo.username}!`,
-      position: 'top',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
+    // toast({
+    //   title: `Welcome back ${userInfo.username}!`,
+    //   position: 'top',
+    //   status: 'success',
+    //   duration: 3000,
+    //   isClosable: true,
+    // });
     dispatch({ type: GET_CURRENT_SUCCESS, payload: { userInfo, token } });
     if (currentPath) {
       dispatch({

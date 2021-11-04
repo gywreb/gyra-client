@@ -39,6 +39,7 @@ import { useToast } from '@chakra-ui/toast';
 import { setCurrentActive } from '../../store/navigation/action';
 import { NAVIGATION_KEY } from '../../configs/navigation';
 import { ROUTE_KEY } from 'src/configs/router';
+import { useHistory } from 'react-router';
 
 const Projects = () => {
   // constants
@@ -46,6 +47,7 @@ const Projects = () => {
   const innerLimit = 2;
   const PAGE_SIZE = 5;
 
+  const history = useHistory();
   const dispatch = useDispatch();
   const { projectList } = useSelector(state => state.project);
 
@@ -158,9 +160,16 @@ const Projects = () => {
                                 src={`https://avatars.dicebear.com/api/jdenticon/${item.key}.svg`}
                               />
                             </Flex>
-                            <Link to={ROUTE_KEY.Projects}>
+                            <Box
+                              cursor="pointer"
+                              onClick={() =>
+                                history.push(
+                                  `${NAVIGATION_KEY.BOARD}/${item._id}`
+                                )
+                              }
+                            >
                               <Text color="orange.500">{item.name || ''}</Text>
-                            </Link>
+                            </Box>
                           </Flex>
                         </Td>
                         <Td>{item.key || ''}</Td>

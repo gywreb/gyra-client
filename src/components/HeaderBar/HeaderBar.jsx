@@ -22,12 +22,15 @@ const HeaderBar = () => {
     <Flex
       width="100%"
       height={70}
-      backgroundColor="orange.100"
+      backgroundColor="white"
       pl={8}
       pr={8}
       boxShadow={BaseStyles.shadowConfig}
       justifyContent="space-between"
-      position="fixed"
+      position="relative"
+      zIndex="99"
+      // position="fixed"
+      // zIndex="99"
     >
       <Flex alignItems="center">
         <Image src={LogoGyraBanner} width={180} />
@@ -35,12 +38,14 @@ const HeaderBar = () => {
           {APP_NAVIGATIONS.map(navigation => (
             <Button
               height="100%"
-              bgColor="orange.100"
-              _hover={{ bgColor: 'orange.200' }}
-              _focus={{ bgColor: 'orange.200' }}
-              _active={{ bgColor: 'orange.200' }}
+              bgColor="white"
+              _hover={{ bgColor: 'orange.50' }}
+              _focus={{ bgColor: 'orange.50' }}
+              _active={{ bgColor: 'orange.50' }}
               as={Button}
-              color="orange.700"
+              color={
+                navigation.id === currentActive ? 'orange.500' : 'gray.600'
+              }
               position="relative"
               _before={
                 navigation.id === currentActive
@@ -50,7 +55,7 @@ const HeaderBar = () => {
                       height: 1,
                       width: '100%',
                       bottom: 0,
-                      bgColor: 'orange.700',
+                      bgColor: 'orange.500',
                     }
                   : null
               }
@@ -67,12 +72,12 @@ const HeaderBar = () => {
       <Flex alignItems="center">
         <IconButton
           borderRadius="50%"
-          bg="orange.50"
+          bg="gray.100"
           position="relative"
           fontSize="12px"
           fontWeight="bold"
           color="white"
-          icon={<Icon as={AiFillBell} color="orange.700" boxSize={8} />}
+          icon={<Icon as={AiFillBell} color="orange.500" boxSize={8} />}
           boxSize={12}
           _after={{
             content: `'99'`,
@@ -96,7 +101,7 @@ const HeaderBar = () => {
           cursor="pointer"
           size="md"
           src={`https://avatars.dicebear.com/api/gridy/${userInfo?.username}.svg`}
-          bgColor="orange.50"
+          bgColor="gray.100"
           padding="2px"
           onClick={() => {}}
         />

@@ -174,7 +174,7 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
                 {errors.begin_date && errors.begin_date.message}
               </FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.end}>
+            <FormControl isInvalid={errors.end_date}>
               <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value, name } }) => (
@@ -193,7 +193,7 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
                 name="end_date"
               />
               <FormErrorMessage mb={4}>
-                {errors.end && errors.begin_date.end}
+                {errors.end_date && errors.begin_date.end_date}
               </FormErrorMessage>
             </FormControl>
 
