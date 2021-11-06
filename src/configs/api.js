@@ -32,6 +32,7 @@ export const COLUMN_API = {
 export const TASK_API = {
   createTask: `${TASK_ROUTE}/create-task`,
   getTaskListByProject: projectId => `${TASK_ROUTE}/${projectId}`,
+  moveTaskInBoard: taskId => `${TASK_ROUTE}/move-task/${taskId}`,
 };
 
 export const apiClient = axios.create({

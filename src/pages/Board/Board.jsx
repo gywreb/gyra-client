@@ -37,7 +37,10 @@ import { createColumn, getColumnList } from 'src/store/column/action';
 import GScrollBar from 'src/components/GScrollBar/GScrollBar';
 import { useDisclosure } from '@chakra-ui/hooks';
 import TaskCreateModal from 'src/components/TaskCreateModal/TaskCreateModal';
-import { getTaskListByProject } from 'src/store/task/action';
+import { getTaskListByProject, moveTaskInBoard } from 'src/store/task/action';
+import { PRIORITY_UI, TASK_TYPES_UI } from 'src/configs/constants';
+import TaskCard from 'src/components/TaskCard/TaskCard';
+import ColumnCard from 'src/components/ColumnCard/ColumnCard';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -62,6 +65,9 @@ const Board = () => {
   );
   const { currentSidebarActive } = useSelector(state => state.navigation);
   const { userInfo } = useSelector(state => state.auth);
+  const { taskListByProject, getLoading: getTaskLoading } = useSelector(
+    state => state.task
+  );
   const { columnList, getLoading, postLoading } = useSelector(
     state => state.column
   );
@@ -107,8 +113,25 @@ const Board = () => {
     dispatch(createColumn(params, toast, reset));
   };
 
-  const handleMoveColumn = result => {
-    console.log('result :>> ', result);
+  const handleMoveColumn = (result, provided) => {
+    const { source, destination, draggableId, type } = result;
+    if (!destination) {
+      return;
+    }
+    // move task
+    if (type === 'card') {
+      dispatch(
+        moveTaskInBoard(
+          draggableId,
+          {
+            fromColumnId: source.droppableId,
+            toColumnId: destination.droppableId,
+            toIndex: destination.index,
+          },
+          toast
+        )
+      );
+    }
   };
 
   return (
@@ -120,6 +143,7 @@ const Board = () => {
           pl={8}
           pr={8}
           pt={6}
+          pb={6}
           width="100%"
           overflowX="hidden"
           css={{
@@ -219,9 +243,9 @@ const Board = () => {
                 <Button variant="solid" onClick={() => {}}>
                   Only My Tasks
                 </Button>
-                <Button ml={4} variant="solid" onClick={() => {}}>
+                {/* <Button ml={4} variant="solid" onClick={() => {}}>
                   Recently Updated
-                </Button>
+                </Button> */}
               </Flex>
             </Flex>
             <Button
@@ -242,14 +266,15 @@ const Board = () => {
                 direction="horizontal"
                 type="list"
               >
-                {provided => (
+                {boardProvided => (
                   <Flex
                     mt={8}
+                    pb={6}
                     overflowX="auto"
                     minHeight="65%"
                     alignItems="flex-start"
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
+                    ref={boardProvided.innerRef}
+                    {...boardProvided.droppableProps}
                     css={{
                       '&:hover': {
                         '&::-webkit-scrollbar': {
@@ -283,30 +308,25 @@ const Board = () => {
                         index={index}
                         key={column._id}
                       >
-                        {provided => (
-                          <Box
-                            minWidth={BaseStyles.columnWidth}
-                            minHeight={BaseStyles.addColumnHeight}
-                            p={2}
-                            mr={4}
-                            bgColor="gray.100"
-                            borderRadius={6}
-                            cursor="pointer"
-                            _hover={{ bgColor: 'gray.200' }}
-                            transition="all 0.4s"
-                            onClick={() => setAddingColumn(true)}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <Text color="gray.600" ml={2}>
-                              {column?.name || ''}
-                            </Text>
-                          </Box>
+                        {columnProvided => (
+                          <ColumnCard
+                            column={column}
+                            columnProvided={columnProvided}
+                            getTaskLoading={getTaskLoading}
+                            taskListByProject={taskListByProject}
+                            renderTaskComponent={(taskProvided, task) => (
+                              <TaskCard
+                                taskProvided={taskProvided}
+                                task={task}
+                                key={task._id}
+                              />
+                            )}
+                            key={column._id}
+                          />
                         )}
                       </Draggable>
                     ))}
-                    {provided.placeholder}
+                    {boardProvided.placeholder}
                     {addingColumn ? (
                       <Form
                         p={4}
@@ -347,7 +367,7 @@ const Board = () => {
                     ) : (
                       <Flex
                         minWidth={BaseStyles.columnWidth}
-                        height={BaseStyles.addColumnHeight}
+                        minHeight={BaseStyles.addColumnHeight}
                         p={2}
                         bgColor="gray.100"
                         alignItems="center"
@@ -359,7 +379,7 @@ const Board = () => {
                         onClick={() => setAddingColumn(true)}
                       >
                         <Icon as={FaPlus} color="gray.500" />
-                        <Text color="gray.500" ml={2}>
+                        <Text color="gray.500" ml={2} pt={2} pb={2}>
                           Add Column
                         </Text>
                       </Flex>

@@ -5,6 +5,9 @@ import {
   GET_TASK_BY_PROJECT_ERROR,
   GET_TASK_BY_PROJECT_SUCCESS,
   GET_TASK_REQUEST,
+  MOVE_TASK_ERROR,
+  MOVE_TASK_REQUEST,
+  MOVE_TASK_SUCCESS,
 } from './action';
 
 const initialState = {
@@ -12,6 +15,7 @@ const initialState = {
   currentLastTaskKey: 0,
   getLoading: false,
   postLoading: false,
+  moveTaskLoading: false,
   error: null,
 };
 
@@ -53,6 +57,15 @@ export default function taskReducer(state = initialState, action) {
         taskListByProject: [],
         currentLastTaskKey: 0,
       };
+    }
+    case MOVE_TASK_REQUEST: {
+      return { ...state, moveTaskLoading: true };
+    }
+    case MOVE_TASK_SUCCESS: {
+      return { ...state, moveTaskLoading: false };
+    }
+    case MOVE_TASK_ERROR: {
+      return { ...state, moveTaskLoading: false };
     }
     default:
       return state;
