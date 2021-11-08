@@ -15,7 +15,7 @@ import {
 import { chakra } from '@chakra-ui/system';
 import { useToast } from '@chakra-ui/toast';
 import { capitalize } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -35,30 +35,31 @@ const Form = chakra('form', {
   },
 });
 
-const TaskCreateModal = ({ isOpen, onClose }) => {
+const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
   const { currentProject } = useSelector(state => state.project);
   const { userInfo } = useSelector(state => state.auth);
   const { columnList } = useSelector(state => state.column);
   const { postLoading, currentLastTaskKey } = useSelector(state => state.task);
+  const formDefaultVal = {
+    name: selectedTask?.name || '',
+    priority: selectedTask?.priority || '',
+    reporter: selectedTask?.reporter || '',
+    assignee: selectedTask?.assignee || '',
+    status: selectedTask?.status || '',
+    type: selectedTask?.type || '',
+    description: selectedTask?.description || '',
+  };
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting, touchedFields },
+    formState: { errors, isDirty },
     reset,
     setValue,
     clearErrors,
     getValues,
-  } = useForm({
-    name: '',
-    key: '',
-    priority: '',
-    reporter: '',
-    assignee: '',
-    status: '',
-    type: '',
-    description: '',
-  });
+    watch,
+  } = useForm({ ...formDefaultVal });
 
   const dispatch = useDispatch();
   const toast = useToast();
@@ -72,7 +73,6 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
     }
     params.task_key = `${currentProject?.key}-${currentLastTaskKey + 1}`;
     params.project = currentProject?._id;
-    console.log(data);
     dispatch(createTask(params, toast, closeModalOnSuccess));
   };
 
@@ -82,6 +82,20 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
     clearErrors();
   };
 
+  useEffect(() => {
+    if (selectedTask) {
+      for (let key in selectedTask) {
+        if (key in formDefaultVal) {
+          setValue(key, selectedTask[key]);
+        }
+      }
+    }
+  }, [selectedTask]);
+
+  useEffect(() => {
+    console.log('isDirty :>> ', isDirty);
+  }, [isDirty]);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -90,21 +104,75 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
         reset();
         clearErrors();
       }}
-      size="xl"
+      size="5xl"
     >
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Create New Task</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Form>
-            <GTextInput
-              autoComplete="off"
-              title="Project"
-              isRequired
-              readOnlyContent={currentProject?.name}
-              leftImg={`https://avatars.dicebear.com/api/jdenticon/${currentProject?.key}.svg`}
-            />
+      <Form>
+        <ModalContent>
+          <ModalHeader>
+            <FormControl isInvalid={errors.type} maxWidth="25%">
+              <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value, name } }) => (
+                  <GFormMenu
+                    ml={-2}
+                    isRequired
+                    title=""
+                    placeholder="Select this task type"
+                    value={value}
+                    data={TASK_TYPE_SELECT}
+                    noIcon
+                    variant="ghost"
+                    size="sm"
+                    renderLeftItemAddon={item => (
+                      <Flex
+                        boxSize={5}
+                        bgColor={item.color}
+                        borderRadius={3}
+                        alignItems="center"
+                        justifyContent="center"
+                        mr={2}
+                      >
+                        <Icon as={item.icon} color="white" boxSize={3} />
+                      </Flex>
+                    )}
+                    renderValue={selectedItem => (
+                      <Flex alignItems="center">
+                        <Flex
+                          boxSize={5}
+                          bgColor={TASK_TYPES_UI[selectedItem].color}
+                          borderRadius={3}
+                          alignItems="center"
+                          justifyContent="center"
+                          mr={2}
+                        >
+                          <Icon
+                            as={TASK_TYPES_UI[selectedItem].icon}
+                            color="white"
+                            boxSize={3}
+                          />
+                        </Flex>
+                        <Text fontSize="lg">{selectedTask?.task_key}</Text>
+                      </Flex>
+                    )}
+                    onClick={item => onChange(item.label)}
+                  />
+                )}
+                name="type"
+                rules={{
+                  required: {
+                    value: true,
+                    message: 'Type is required',
+                  },
+                }}
+              />
+              <FormErrorMessage mb={4}>
+                {errors.type && errors.type.message}
+              </FormErrorMessage>
+            </FormControl>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
             <GTextInput
               autoComplete="off"
               title="Reporter"
@@ -112,15 +180,6 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
               readOnlyContent={userInfo.username}
               leftImg={`https://avatars.dicebear.com/api/gridy/${userInfo?.username}.svg`}
               leftImgIsAvatar
-            />
-            <GTextInput
-              autoComplete="off"
-              title="Key"
-              isRequired
-              readOnlyContent={`${currentProject?.key}-${
-                currentLastTaskKey + 1
-              }`}
-              tooltip={'Identifier of your task for future easy managment'}
             />
             <FormControl isInvalid={errors.name}>
               <Controller
@@ -155,6 +214,7 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
                 control={control}
                 render={({ field: { onChange, onBlur, value, name } }) => (
                   <GTextEditor
+                    isEditable
                     autoComplete="off"
                     title="Description"
                     placeholder="Type in task description"
@@ -162,6 +222,9 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
                       onChange(content);
                     }}
                     value={value}
+                    onCancel={prevValue => {
+                      if (prevValue) setValue('description', prevValue);
+                    }}
                   />
                 )}
                 name="description"
@@ -217,64 +280,7 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
                 {errors.priority && errors.priority.message}
               </FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.type}>
-              <Controller
-                control={control}
-                render={({ field: { onChange, onBlur, value, name } }) => (
-                  <GFormMenu
-                    isRequired
-                    title="Type"
-                    placeholder="Select this task type"
-                    value={value}
-                    data={TASK_TYPE_SELECT}
-                    renderLeftItemAddon={item => (
-                      <Flex
-                        boxSize={5}
-                        bgColor={item.color}
-                        borderRadius={3}
-                        alignItems="center"
-                        justifyContent="center"
-                        mr={2}
-                      >
-                        <Icon as={item.icon} color="white" boxSize={3} />
-                      </Flex>
-                    )}
-                    renderValue={selectedItem => (
-                      <Flex alignSelf="flex-start" alignItems="center">
-                        <Flex
-                          boxSize={5}
-                          bgColor={TASK_TYPES_UI[selectedItem].color}
-                          borderRadius={3}
-                          alignItems="center"
-                          justifyContent="center"
-                          mr={2}
-                        >
-                          <Icon
-                            as={TASK_TYPES_UI[selectedItem].icon}
-                            color="white"
-                            boxSize={3}
-                          />
-                        </Flex>
-                        <Text textAlign="left" fontWeight="normal">
-                          {capitalize(selectedItem || '')}
-                        </Text>
-                      </Flex>
-                    )}
-                    onClick={item => onChange(item.label)}
-                  />
-                )}
-                name="type"
-                rules={{
-                  required: {
-                    value: true,
-                    message: 'Type is required',
-                  },
-                }}
-              />
-              <FormErrorMessage mb={4}>
-                {errors.type && errors.type.message}
-              </FormErrorMessage>
-            </FormControl>
+
             <FormControl isInvalid={errors.assignee}>
               <Controller
                 control={control}
@@ -360,32 +366,32 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
                 {errors.status && errors.status.message}
               </FormErrorMessage>
             </FormControl>
-          </Form>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            colorScheme="orange"
-            mr={3}
-            type="submit"
-            onClick={handleSubmit(onCreateTask)}
-            isLoading={postLoading}
-          >
-            Create Task
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              onClose();
-              reset();
-              clearErrors();
-            }}
-          >
-            Cancel
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="orange"
+              mr={3}
+              type="submit"
+              onClick={handleSubmit(onCreateTask)}
+              isLoading={postLoading}
+            >
+              Create Task
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                onClose();
+                reset();
+                clearErrors();
+              }}
+            >
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Form>
     </Modal>
   );
 };
 
-export default TaskCreateModal;
+export default TaskEditModal;

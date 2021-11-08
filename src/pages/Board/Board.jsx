@@ -41,6 +41,7 @@ import { getTaskListByProject, moveTaskInBoard } from 'src/store/task/action';
 import { PRIORITY_UI, TASK_TYPES_UI } from 'src/configs/constants';
 import TaskCard from 'src/components/TaskCard/TaskCard';
 import ColumnCard from 'src/components/ColumnCard/ColumnCard';
+import TaskEditModal from 'src/components/TaskEditModal/TaskEditModal';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -60,6 +61,7 @@ const Board = () => {
   const dispatch = useDispatch();
   const addColumnAnchorRef = useRef();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [taskEditOpen, setTaskEditOpen] = useState(false);
   const { isGetProjectDetail, currentProject } = useSelector(
     state => state.project
   );
@@ -71,6 +73,7 @@ const Board = () => {
   const { columnList, getLoading, postLoading } = useSelector(
     state => state.column
   );
+  const [selectedTask, setSelectedTask] = useState(null);
   const toast = useToast();
   const {
     register,
@@ -319,6 +322,10 @@ const Board = () => {
                                 taskProvided={taskProvided}
                                 task={task}
                                 key={task._id}
+                                onClick={() => {
+                                  setSelectedTask(task);
+                                  setTaskEditOpen(true);
+                                }}
                               />
                             )}
                             key={column._id}
@@ -396,6 +403,15 @@ const Board = () => {
         isOpen={isOpen}
         onClose={onClose}
         key={'task-create-modal'}
+      />
+      <TaskEditModal
+        isOpen={taskEditOpen}
+        onClose={() => {
+          setTaskEditOpen(false);
+          setSelectedTask(null);
+        }}
+        key={'task-edit-modal'}
+        selectedTask={selectedTask}
       />
     </GLayout>
   );

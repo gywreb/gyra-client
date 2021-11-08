@@ -46,3 +46,19 @@ body {
     visibility: hidden;
   }
 }
+
+.ql-container {
+  min-height: 10em;
+  border-bottom-left-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+  border-color: #f7fafc;
+  background: white;
+}
+
+.ql-toolbar {
+  background: #edf2f7;
+  border-top-left-radius: 0.5em;
+  border-top-right-radius: 0.5em;
+  border-color: #f7fafc;
+  border-bottom: none;
+}

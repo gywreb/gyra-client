@@ -5,7 +5,7 @@ import React from 'react';
 import { PRIORITY_UI, TASK_TYPES_UI } from 'src/configs/constants';
 import { BaseStyles } from 'src/configs/styles';
 
-const TaskCard = ({ taskProvided, task }) => {
+const TaskCard = ({ taskProvided, task, onClick }) => {
   const draggableProps = taskProvided
     ? {
         ref: taskProvided.innerRef,
@@ -25,6 +25,7 @@ const TaskCard = ({ taskProvided, task }) => {
       _hover={{ bgColor: 'orange.50' }}
       _active={{ bgColor: 'orange.100' }}
       transition="all 0.2s"
+      onClick={onClick}
       {...draggableProps}
     >
       <Flex justifyContent="space-between">

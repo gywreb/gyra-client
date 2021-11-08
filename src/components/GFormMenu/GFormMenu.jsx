@@ -24,7 +24,10 @@ const GFormMenu = ({
   itemTextProp,
   noCapOntext,
   valueTextProp,
-  ...restMenuProps
+  menuWidth,
+  noIcon,
+  noDisplayValueText,
+  ...restMenuButtonProps
 }) => {
   return (
     <Box mb={4} {...boxProps}>
@@ -56,8 +59,9 @@ const GFormMenu = ({
       <Menu>
         <MenuButton
           as={Button}
-          width="100%"
-          rightIcon={<Icon as={ChevronDownIcon} />}
+          width={menuWidth || '100%'}
+          rightIcon={noIcon ? null : <Icon as={ChevronDownIcon} />}
+          {...restMenuButtonProps}
         >
           {value && renderValue ? (
             renderValue(value)
@@ -86,11 +90,13 @@ const GFormMenu = ({
             <MenuItem onClick={() => onClick(item)}>
               <Flex alignItems="center">
                 {renderLeftItemAddon ? renderLeftItemAddon(item) : null}
-                <Text>
-                  {noCapOntext
-                    ? item[itemTextProp] || item.label || ''
-                    : capitalize(item[itemTextProp] || item.label || '')}
-                </Text>
+                {noDisplayValueText ? null : (
+                  <Text>
+                    {noCapOntext
+                      ? item[itemTextProp] || item.label || ''
+                      : capitalize(item[itemTextProp] || item.label || '')}
+                  </Text>
+                )}
               </Flex>
             </MenuItem>
           ))}
