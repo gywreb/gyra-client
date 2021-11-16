@@ -1,31 +1,40 @@
-import { Input, InputGroup, InputLeftElement } from '@chakra-ui/input';
-import {
-  Box,
-  Text,
-  Flex,
-  Tooltip,
-  Icon,
-  Textarea,
-  Image,
-  Avatar,
-} from '@chakra-ui/react';
-import React from 'react';
+import { useOutsideClick } from '@chakra-ui/hooks';
+import Icon from '@chakra-ui/icon';
+import { Input, InputGroup } from '@chakra-ui/input';
+import { Box, Flex, Text } from '@chakra-ui/layout';
+import { Textarea } from '@chakra-ui/textarea';
+import { Tooltip } from '@chakra-ui/tooltip';
+import React, { useEffect, useRef, useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
 
-const GTextInput = ({
+const GEditable = ({
   title,
   isRequired,
   tooltip,
+  boxProps,
+  value,
   placeholder,
   isMultiline,
-  boxProps,
   name,
-  readOnlyContent,
-  leftImg,
-  leftImgIsAvatar,
+  onChange,
+  textStyle,
   titleStyle,
   ...restInputProps
 }) => {
+  const editorRef = useRef();
+  const [isShowEditor, setIsShowEditor] = useState(false);
+
+  useOutsideClick({
+    ref: editorRef,
+    handler: () => setIsShowEditor(false),
+  });
+
+  useEffect(() => {
+    if (isShowEditor && editorRef.current) {
+      editorRef.current.focus();
+    }
+  }, [isShowEditor, editorRef]);
+
   return (
     <Box mb={4} {...boxProps}>
       {title && (
@@ -53,33 +62,21 @@ const GTextInput = ({
           )}
         </Flex>
       )}
-      {readOnlyContent ? (
-        <Flex maxWidth="100%" alignItems="center" ml={1}>
-          {leftImg && leftImgIsAvatar ? (
-            <Avatar
-              size="sm"
-              src={leftImg}
-              bgColor="orange.50"
-              padding="2px"
-              borderColor="orange.700"
-              borderWidth={2}
-              mr={2}
-            />
-          ) : leftImg ? (
-            <Box borderColor="gray.500" borderWidth={2} borderRadius={6} mr={2}>
-              <Image
-                src={leftImg}
-                boxSize={7}
-                bgColor="white"
-                borderWidth={6}
-                borderRadius={6}
-              />
-            </Box>
-          ) : null}
-          <Text fontSize="md" color="gray.600">
-            {readOnlyContent}
+      {!isShowEditor ? (
+        <Box
+          borderRadius={8}
+          transition="all 0.3s"
+          _hover={{ backgroundColor: 'gray.100' }}
+          onClick={() => {
+            setIsShowEditor(true);
+          }}
+          p={1}
+          pl={2}
+        >
+          <Text color={value ? 'gray.700' : 'gray.500'} {...textStyle}>
+            {value || placeholder || 'Short Content'}
           </Text>
-        </Flex>
+        </Box>
       ) : (
         <InputGroup maxWidth="100%">
           {isMultiline ? (
@@ -88,16 +85,24 @@ const GTextInput = ({
               placeholder={placeholder || null}
               resize={'vertical'}
               focusBorderColor="orange.500"
+              value={value}
+              onChange={onChange}
               {...restInputProps}
             />
           ) : (
             <Input
+              ref={editorRef}
               name={name}
-              variant="filled"
+              variant="outline"
               type="text"
               focusBorderColor="orange.500"
               placeholder={placeholder || null}
               p={4}
+              pl={2}
+              size="lg"
+              value={value}
+              onChange={onChange}
+              {...textStyle}
               {...restInputProps}
             />
           )}
@@ -107,4 +112,4 @@ const GTextInput = ({
   );
 };
 
-export default GTextInput;
+export default GEditable;

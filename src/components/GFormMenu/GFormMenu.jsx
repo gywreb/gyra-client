@@ -27,13 +27,14 @@ const GFormMenu = ({
   menuWidth,
   noIcon,
   noDisplayValueText,
+  titleStyle,
   ...restMenuButtonProps
 }) => {
   return (
     <Box mb={4} {...boxProps}>
       {title && (
         <Flex>
-          <Text bold mb={2} ml={1}>
+          <Text fontWeight="600" mb={2} ml={1} {...titleStyle}>
             {title}
           </Text>
           {isRequired && (

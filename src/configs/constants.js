@@ -10,6 +10,8 @@ import { IoMdBug } from 'react-icons/io';
 import { MdArrowUpward } from 'react-icons/md';
 import { RiTestTubeFill } from 'react-icons/ri';
 
+export const USER_PER_PAGE = 12;
+
 export const TASK_TYPES = ['feature', 'bug', 'improvement', 'test', 'request'];
 
 export const TASK_TYPES_UI = {

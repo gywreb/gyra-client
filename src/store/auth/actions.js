@@ -24,6 +24,8 @@ export const GET_CURRENT_REQUEST = '@AUTH/GET_CURRENT_REQUEST';
 export const GET_CURRENT_SUCCESS = '@AUTH/GET_CURRENT_SUCCESS';
 export const GET_CURRENT_ERROR = '@AUTH/GET_CURRENT_ERROR';
 
+export const LOGOUT = '@AUTH/LOGOUT';
+
 export const registerAccount =
   (params, history, toast, resetForm) => async dispatch => {
     dispatch({ type: REGISTER_REQUEST });
@@ -150,4 +152,11 @@ export const getCurrent = (history, toast, currentPath) => async dispatch => {
     });
     history.push(ROUTE_KEY.Login);
   }
+};
+
+export const logout = history => dispatch => {
+  delete apiClient.defaults.headers.common['Authorization'];
+  localStorage.removeItem('jwt');
+  dispatch({ type: LOGOUT });
+  history.push(ROUTE_KEY.Login);
 };

@@ -40,6 +40,8 @@ import { setCurrentActive } from '../../store/navigation/action';
 import { NAVIGATION_KEY } from '../../configs/navigation';
 import { ROUTE_KEY } from 'src/configs/router';
 import { useHistory } from 'react-router';
+import GEmptyView from 'src/components/GEmptyView/GEmptyView';
+import { GoProject } from 'react-icons/go';
 
 const Projects = () => {
   // constants
@@ -139,83 +141,96 @@ const Projects = () => {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {projectList
-                    ?.slice(
-                      pageSize * (currentPage - 1),
-                      pageSize * currentPage
-                    )
-                    .map(item => (
-                      <Tr>
-                        <Td>
-                          <Flex alignItems="center">
-                            <Flex
-                              borderWidth={2}
-                              borderRadius={10}
-                              borderColor="orange.700"
-                              mr={4}
-                            >
-                              <Image
-                                width={10}
-                                height={10}
-                                src={`https://avatars.dicebear.com/api/jdenticon/${item.key}.svg`}
+                  {projectList?.length
+                    ? projectList
+                        ?.slice(
+                          pageSize * (currentPage - 1),
+                          pageSize * currentPage
+                        )
+                        .map(item => (
+                          <Tr>
+                            <Td>
+                              <Flex alignItems="center">
+                                <Flex
+                                  borderWidth={2}
+                                  borderRadius={10}
+                                  borderColor="orange.700"
+                                  mr={4}
+                                >
+                                  <Image
+                                    width={10}
+                                    height={10}
+                                    src={`https://avatars.dicebear.com/api/jdenticon/${item.key}.svg`}
+                                  />
+                                </Flex>
+                                <Box
+                                  cursor="pointer"
+                                  onClick={() =>
+                                    history.push(
+                                      `${NAVIGATION_KEY.BOARD}/${item._id}`
+                                    )
+                                  }
+                                >
+                                  <Text color="orange.500">
+                                    {item.name || ''}
+                                  </Text>
+                                </Box>
+                              </Flex>
+                            </Td>
+                            <Td>{item.key || ''}</Td>
+                            <Td>
+                              <Flex alignItems="center">
+                                <Avatar
+                                  cursor="pointer"
+                                  size="md"
+                                  src={`https://avatars.dicebear.com/api/gridy/${item.manager?.username}.svg`}
+                                  bgColor="orange.50"
+                                  padding="2px"
+                                  onClick={() => {}}
+                                  borderColor="orange.700"
+                                  borderWidth={2}
+                                  mr={4}
+                                />
+                                <Link to={ROUTE_KEY.Projects}>
+                                  <Text color="orange.500">
+                                    {item.manager?.fullname ||
+                                      item.manager?.username ||
+                                      ''}
+                                  </Text>
+                                </Link>
+                              </Flex>
+                            </Td>
+                            <Td>
+                              {moment(item.begin_date).format('DD/MM/yyyy')}
+                            </Td>
+                            <Td>
+                              {item.end_date
+                                ? moment(item.end_date).format('DD/MM/yyyy')
+                                : `NOT DETEMINED`}
+                            </Td>
+                            <Td padding={0}>
+                              <IconButton
+                                cursor="pointer"
+                                as={HiOutlineDotsVertical}
+                                color="orange.700"
+                                bgColor="white"
+                                _active={{ bgColor: 'orange.200' }}
+                                _hover={{ bgColor: 'orange.100' }}
                               />
-                            </Flex>
-                            <Box
-                              cursor="pointer"
-                              onClick={() =>
-                                history.push(
-                                  `${NAVIGATION_KEY.BOARD}/${item._id}`
-                                )
-                              }
-                            >
-                              <Text color="orange.500">{item.name || ''}</Text>
-                            </Box>
-                          </Flex>
-                        </Td>
-                        <Td>{item.key || ''}</Td>
-                        <Td>
-                          <Flex alignItems="center">
-                            <Avatar
-                              cursor="pointer"
-                              size="md"
-                              src={`https://avatars.dicebear.com/api/gridy/${item.manager?.username}.svg`}
-                              bgColor="orange.50"
-                              padding="2px"
-                              onClick={() => {}}
-                              borderColor="orange.700"
-                              borderWidth={2}
-                              mr={4}
-                            />
-                            <Link to={ROUTE_KEY.Projects}>
-                              <Text color="orange.500">
-                                {item.manager?.fullname ||
-                                  item.manager?.username ||
-                                  ''}
-                              </Text>
-                            </Link>
-                          </Flex>
-                        </Td>
-                        <Td>{moment(item.begin_date).format('DD/MM/yyyy')}</Td>
-                        <Td>
-                          {item.end_date
-                            ? moment(item.end_date).format('DD/MM/yyyy')
-                            : `NOT DETEMINED`}
-                        </Td>
-                        <Td padding={0}>
-                          <IconButton
-                            cursor="pointer"
-                            as={HiOutlineDotsVertical}
-                            color="orange.700"
-                            bgColor="white"
-                            _active={{ bgColor: 'orange.200' }}
-                            _hover={{ bgColor: 'orange.100' }}
-                          />
-                        </Td>
-                      </Tr>
-                    ))}
+                            </Td>
+                          </Tr>
+                        ))
+                    : null}
                 </Tbody>
               </Table>
             </PaginationContainer>
+            {!projectList?.length ? (
+              <GEmptyView
+                height="500px"
+                icon={GoProject}
+                message="No Project Here. Let create your first"
+              />
+            ) : null}
             {projectList?.length > PAGE_SIZE ? (
               <Flex alignItems="center" justifyContent="flex-end">
                 <PaginationPrevious

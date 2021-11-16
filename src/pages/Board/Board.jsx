@@ -116,7 +116,7 @@ const Board = () => {
     dispatch(createColumn(params, toast, reset));
   };
 
-  const handleMoveColumn = (result, provided) => {
+  const handleMove = (result, provided) => {
     const { source, destination, draggableId, type } = result;
     if (!destination) {
       return;
@@ -256,6 +256,7 @@ const Board = () => {
               colorScheme="orange"
               rightIcon={<Icon as={FaPlus} color="white" />}
               onClick={() => onOpen()}
+              disabled={columnList?.length ? false : true}
             >
               Create Task
             </Button>
@@ -263,7 +264,7 @@ const Board = () => {
           {getLoading ? (
             <GSpinner width="100%" height={600} />
           ) : (
-            <DragDropContext onDragEnd={handleMoveColumn}>
+            <DragDropContext onDragEnd={handleMove}>
               <Droppable
                 droppableId="all-columns"
                 direction="horizontal"
@@ -334,7 +335,9 @@ const Board = () => {
                       </Draggable>
                     ))}
                     {boardProvided.placeholder}
-                    {addingColumn ? (
+                    {!(
+                      currentProject?.manager?._id === userInfo?._id
+                    ) ? null : addingColumn ? (
                       <Form
                         p={4}
                         borderRadius={6}

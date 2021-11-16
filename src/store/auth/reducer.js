@@ -5,6 +5,7 @@ import {
   LOGIN_ERROR,
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
+  LOGOUT,
   REGISTER_ERROR,
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
@@ -86,6 +87,9 @@ export default function authReducer(state = initialState, action) {
         token: null,
         error: action.payload.error,
       };
+    }
+    case LOGOUT: {
+      return { ...initialState };
     }
     default:
       return state;

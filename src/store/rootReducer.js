@@ -4,6 +4,7 @@ import columnReducer from './column/reducer';
 import navigationReducer from './navigation/reducer';
 import projectReducer from './project/reducer';
 import taskReducer from './task/reducer';
+import userReducer from './user/reducer';
 
 const reducer = combineReducers({
   auth: authReducer,
@@ -11,6 +12,7 @@ const reducer = combineReducers({
   project: projectReducer,
   column: columnReducer,
   task: taskReducer,
+  user: userReducer,
 });
 
 export default reducer;

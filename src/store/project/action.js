@@ -46,7 +46,7 @@ export const createProject = (params, toast, closeModal) => async dispatch => {
         errorMessage = formatErrorMessage(message);
     }
     toast({
-      title: capitalize(errorMessage || 'failed to create new project!'),
+      title: errorMessage || 'failed to create new project!',
       position: 'top',
       status: 'error',
       duration: 3000,

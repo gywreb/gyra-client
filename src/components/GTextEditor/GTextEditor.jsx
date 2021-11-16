@@ -1,12 +1,15 @@
+import { Avatar } from '@chakra-ui/avatar';
 import { Button } from '@chakra-ui/button';
+import { useOutsideClick } from '@chakra-ui/hooks';
 import Icon from '@chakra-ui/icon';
 import { Box, Flex, Text } from '@chakra-ui/layout';
 import { chakra } from '@chakra-ui/system';
 import { Tooltip } from '@chakra-ui/tooltip';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { useSelector } from 'react-redux';
 
 const TextEditor = chakra(ReactQuill, {
   baseStyle: { fontSize: 12 },
@@ -21,12 +24,24 @@ const GTextEditor = ({
   boxProps,
   value,
   onChange,
-  onClick,
   emptyValueText,
   isEditable,
   onCancel,
+  titleStyle,
+  isCommentType,
+  onSave,
+  isSaveLoading,
   ...restEditorProps
 }) => {
+  const commentStyle = isCommentType
+    ? {
+        bgColor: 'white',
+        borderColor: 'gray.300',
+        borderWidth: 1.5,
+        _hover: { borderColor: 'gray.600' },
+      }
+    : {};
+
   const modules = {
     syntax: true,
     toolbar: [
@@ -55,15 +70,22 @@ const GTextEditor = ({
     'indent',
     'code-block',
   ];
-
+  const textEditor = useRef();
   const [isShowEditor, setIsShowEditor] = useState(false);
-  const [oldValue, setOldValue] = useState(null);
+  const { userInfo } = useSelector(state => state.auth);
+
+  useOutsideClick({
+    ref: textEditor,
+    handler: () => {
+      setIsShowEditor(false);
+    },
+  });
 
   return (
     <Box mb={4} {...boxProps} width="100%">
       {title && (
         <Flex>
-          <Text bold mb={2} ml={1}>
+          <Text fontWeight="600" mb={2} ml={1} {...titleStyle}>
             {title}
           </Text>
           {isRequired && (
@@ -98,48 +120,67 @@ const GTextEditor = ({
           {...restEditorProps}
         />
       ) : isShowEditor ? (
-        <Box>
-          <TextEditor
-            theme="snow"
-            value={value || ''}
-            onChange={onChange}
-            modules={modules}
-            formats={formats}
-            noOfLines={3}
-            {...restEditorProps}
-          />
-          <Box mt={4}>
-            <Button
-              colorScheme="orange"
-              mr={1}
-              type="submit"
-              onClick={() => {}}
-              // isLoading={postLoading}
-            >
-              Save
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setIsShowEditor(false);
-                onCancel(oldValue);
-                setOldValue(null);
-              }}
-            >
-              Cancel
-            </Button>
+        <Flex>
+          {isCommentType ? (
+            <Avatar
+              size="sm"
+              src={`https://avatars.dicebear.com/api/gridy/${userInfo?.username}.svg`}
+              bgColor="orange.50"
+              padding="2px"
+              borderColor="orange.700"
+              borderWidth={2}
+              mr={2}
+            />
+          ) : null}
+          <Box ref={textEditor} width="100%">
+            <TextEditor
+              theme="snow"
+              value={value || ''}
+              onChange={onChange}
+              modules={modules}
+              formats={formats}
+              noOfLines={3}
+              {...restEditorProps}
+            />
+            <Box mt={4}>
+              <Button
+                colorScheme="orange"
+                mr={1}
+                type="submit"
+                onClick={() => {
+                  onSave();
+
+                  setIsShowEditor(false);
+                }}
+                isLoading={isSaveLoading}
+              >
+                Save
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setIsShowEditor(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </Box>
           </Box>
-        </Box>
+        </Flex>
       ) : null}
       {/* display html markup content */}
       {isShowEditor ? null : value && isEditable ? (
         <Box
           borderRadius={8}
           transition="all 0.3s"
-          _hover={{ backgroundColor: 'gray.100' }}
+          pl={-2}
           onClick={() => {
             setIsShowEditor(true);
-            setOldValue(value);
+          }}
+          borderWidth={1.2}
+          borderColor="gray.300"
+          _hover={{
+            borderColor: 'gray.500',
           }}
         >
           <div className="ql-snow">
@@ -153,24 +194,38 @@ const GTextEditor = ({
           </div>
         </Box>
       ) : !value && isEditable ? (
-        <Box
-          cursor="pointer"
-          p={2}
-          pl={4}
-          pr={4}
-          borderRadius={6}
-          transition="all 0.3s"
-          backgroundColor="gray.100"
-          _hover={{ backgroundColor: 'gray.200' }}
-          onClick={() => {
-            setIsShowEditor(true);
-            setOldValue(value);
-          }}
-        >
-          <Text color="gray.400">
-            {emptyValueText || 'Add content here...'}
-          </Text>
-        </Box>
+        <Flex alignItems="center">
+          {isCommentType ? (
+            <Avatar
+              size="sm"
+              src={`https://avatars.dicebear.com/api/gridy/${userInfo?.username}.svg`}
+              bgColor="orange.50"
+              padding="2px"
+              borderColor="orange.700"
+              borderWidth={2}
+              mr={2}
+            />
+          ) : null}
+          <Box
+            cursor="text"
+            p={2}
+            pl={4}
+            pr={4}
+            borderRadius={6}
+            transition="all 0.3s"
+            backgroundColor="gray.100"
+            _hover={{ backgroundColor: 'gray.200' }}
+            onClick={() => {
+              setIsShowEditor(true);
+            }}
+            width="100%"
+            {...commentStyle}
+          >
+            <Text color="gray.400">
+              {emptyValueText || 'Add content here...'}
+            </Text>
+          </Box>
+        </Flex>
       ) : null}
     </Box>
   );

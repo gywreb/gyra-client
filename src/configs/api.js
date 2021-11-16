@@ -1,4 +1,5 @@
 import axios from 'axios';
+import QueryString from 'qs';
 
 export const baseURL =
   process.env.NODE_ENV === 'development'
@@ -12,6 +13,7 @@ const AUTH_ROUTE = '/auth';
 const PROJECT_ROUTE = '/project';
 const COLUMN_ROUTE = '/column';
 const TASK_ROUTE = '/task';
+const USER_ROUTE = '/user';
 
 export const AUTH_API = {
   register: `${AUTH_ROUTE}/register`,
@@ -33,10 +35,17 @@ export const TASK_API = {
   createTask: `${TASK_ROUTE}/create-task`,
   getTaskListByProject: projectId => `${TASK_ROUTE}/${projectId}`,
   moveTaskInBoard: taskId => `${TASK_ROUTE}/move-task/${taskId}`,
+  editTask: taskId => `${TASK_ROUTE}/edit-task/${taskId}`,
+};
+
+export const USER_API = {
+  getAllUsers: `${USER_ROUTE}/all`,
 };
 
 export const apiClient = axios.create({
   baseURL,
+  paramsSerializer: params =>
+    QueryString.stringify(params, { arrayFormat: 'repeat' }),
 });
 
 export const fileUri = filename => `${baseURL}/file/${filename}`;

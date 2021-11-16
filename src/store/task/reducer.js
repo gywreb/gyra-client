@@ -2,6 +2,9 @@ import {
   CREATE_TASK_ERROR,
   CREATE_TASK_REQUEST,
   CREATE_TASK_SUCCESS,
+  EDIT_TASK_ERROR,
+  EDIT_TASK_REQUEST,
+  EDIT_TASK_SUCCESS,
   GET_TASK_BY_PROJECT_ERROR,
   GET_TASK_BY_PROJECT_SUCCESS,
   GET_TASK_REQUEST,
@@ -16,6 +19,7 @@ const initialState = {
   getLoading: false,
   postLoading: false,
   moveTaskLoading: false,
+  editTaskLoading: false,
   error: null,
 };
 
@@ -62,10 +66,43 @@ export default function taskReducer(state = initialState, action) {
       return { ...state, moveTaskLoading: true };
     }
     case MOVE_TASK_SUCCESS: {
-      return { ...state, moveTaskLoading: false };
+      const updatedTaskIndex = state.taskListByProject.findIndex(
+        task => task._id === action.payload.updatedTask._id
+      );
+      if (updatedTaskIndex === -1) return { ...state, moveTaskLoading: false };
+      return {
+        ...state,
+        moveTaskLoading: false,
+        taskListByProject: [
+          ...state.taskListByProject.slice(0, updatedTaskIndex),
+          action.payload.updatedTask,
+          ...state.taskListByProject.slice(updatedTaskIndex + 1),
+        ],
+      };
     }
     case MOVE_TASK_ERROR: {
       return { ...state, moveTaskLoading: false };
+    }
+    case EDIT_TASK_REQUEST: {
+      return { ...state, editTaskLoading: true };
+    }
+    case EDIT_TASK_SUCCESS: {
+      const updatedTaskIndex = state.taskListByProject.findIndex(
+        task => task._id === action.payload.updatedTask._id
+      );
+      if (updatedTaskIndex === -1) return { ...state, editTaskLoading: false };
+      return {
+        ...state,
+        editTaskLoading: false,
+        taskListByProject: [
+          ...state.taskListByProject.slice(0, updatedTaskIndex),
+          action.payload.updatedTask,
+          ...state.taskListByProject.slice(updatedTaskIndex + 1),
+        ],
+      };
+    }
+    case EDIT_TASK_ERROR: {
+      return { ...state, editTaskLoading: false };
     }
     default:
       return state;

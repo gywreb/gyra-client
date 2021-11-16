@@ -22,6 +22,11 @@ export const MOVE_TASK_REQUEST = '@TASK/MOVE_TASK_REQUEST';
 export const MOVE_TASK_SUCCESS = '@TASK/MOVE_TASK_SUCCESS';
 export const MOVE_TASK_ERROR = '@TASK/MOVE_TASK_ERROR';
 
+// - EDIT TASK
+export const EDIT_TASK_REQUEST = '@TASK/EDIT_TASK_REQUEST';
+export const EDIT_TASK_SUCCESS = '@TASK/EDIT_TASK_SUCCESS';
+export const EDIT_TASK_ERROR = '@TASK/EDIT_TASK_ERROR';
+
 export const getTaskListByProject = projectId => async dispatch => {
   dispatch({ type: GET_TASK_REQUEST });
   try {
@@ -103,21 +108,22 @@ export const moveTaskInBoard =
       });
       const {
         data: {
-          data: { fromColumn, toColumn, taskId },
+          data: { fromColumn, toColumn, updatedTask },
         },
       } = await apiClient.put(
         TASK_API.moveTaskInBoard(moveTaskId),
         moveTaskParams
       );
-      dispatch({ type: MOVE_TASK_SUCCESS });
+      dispatch({ type: MOVE_TASK_SUCCESS, payload: { updatedTask } });
       let displayMess = !(fromColumn._id === toColumn._id)
         ? `Task ${
             taskListByProject
-              .find(task => task._id === taskId)
+              .find(task => task._id === updatedTask._id)
               ?.task_key?.toUpperCase() || ''
           } has transitioned from '${fromColumn?.name}' to '${toColumn?.name}'`
         : `Task ${
-            taskListByProject.find(task => task._id === taskId)?.task_key || ''
+            taskListByProject.find(task => task._id === updatedTask._id)
+              ?.task_key || ''
           } status has updated`;
       toast({
         title: displayMess || '',
@@ -130,6 +136,62 @@ export const moveTaskInBoard =
       let errorMessage = null;
       dispatch({ type: RESTART_COLUMN_MOVE_TASK_ERROR });
       dispatch({ type: MOVE_TASK_ERROR, payload: { error } });
+      if (error?.response?.data) {
+        const { message } = error?.response?.data;
+        if (typeof message === 'string') errorMessage = message;
+        else if (typeof message === 'object')
+          errorMessage = formatErrorMessage(message);
+      }
+      console.log(`error`, error);
+      toast({
+        title: capitalize(errorMessage || 'failed to move task'),
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+export const editTask =
+  (taskId, updateParams, toast, closeModalOnSuccess) =>
+  async (dispatch, getState) => {
+    const { taskListByProject } = getState().task;
+    const taskInStore = taskListByProject.find(task => task._id === taskId);
+    if (!taskInStore) return;
+    dispatch({ type: EDIT_TASK_REQUEST });
+    try {
+      const {
+        data: {
+          data: { fromColumn, toColumn, updatedTask },
+        },
+      } = await apiClient.put(TASK_API.editTask(taskId), updateParams);
+      if (toColumn?._id && fromColumn._id !== toColumn._id) {
+        dispatch({
+          type: SET_COLUMN_AFTER_MOVE_TASK,
+          payload: {
+            taskId: updatedTask._id,
+            moveTaskParams: {
+              fromColumnId: fromColumn._id,
+              toColumnId: toColumn._id,
+              toIndex: null,
+            },
+            toast,
+          },
+        });
+      }
+      dispatch({ type: EDIT_TASK_SUCCESS, payload: { updatedTask } });
+      if (closeModalOnSuccess) closeModalOnSuccess();
+      toast({
+        title: `Task ${updatedTask.task_key} updated successfully!`,
+        position: 'top',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      let errorMessage = null;
+      dispatch({ type: EDIT_TASK_ERROR, payload: { error } });
       if (error?.response?.data) {
         const { message } = error?.response?.data;
         if (typeof message === 'string') errorMessage = message;
