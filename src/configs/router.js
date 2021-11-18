@@ -10,5 +10,6 @@ export const ROUTE_KEY = {
   TaskDetail: '/tasks/:taskId',
   People: '/people',
   Team: '/team',
+  Invitation: '/invitation',
   NotFound: '/404',
 };

@@ -2,6 +2,9 @@ import {
   GET_CURRENT_ERROR,
   GET_CURRENT_REQUEST,
   GET_CURRENT_SUCCESS,
+  INVITE_USER_ERROR,
+  INVITE_USER_REQUEST,
+  INVITE_USER_SUCCESS,
   LOGIN_ERROR,
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
@@ -16,6 +19,7 @@ const initialState = {
   token: null,
   loading: false,
   getCurrentLoading: false,
+  inviteLoading: false,
   error: null,
 };
 
@@ -90,6 +94,19 @@ export default function authReducer(state = initialState, action) {
     }
     case LOGOUT: {
       return { ...initialState };
+    }
+    case INVITE_USER_REQUEST: {
+      return { ...state, inviteLoading: true };
+    }
+    case INVITE_USER_SUCCESS: {
+      return {
+        ...state,
+        inviteLoading: false,
+        userInfo: { ...state.userInfo, ...action.payload.userInfo },
+      };
+    }
+    case INVITE_USER_ERROR: {
+      return { ...state, inviteLoading: false, error: action.payload.error };
     }
     default:
       return state;

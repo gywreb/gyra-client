@@ -11,6 +11,7 @@ export const NAVIGATION_KEY = {
   BOARD: '/board',
   SETTING: '/setting',
   ACTIVITY: '/activity',
+  INVITATION: '/invitation',
 };
 
 export const APP_NAVIGATIONS = [
@@ -19,21 +20,21 @@ export const APP_NAVIGATIONS = [
     title: 'Projects',
     path: ROUTE_KEY.Projects,
   },
-  {
-    id: NAVIGATION_KEY.TASK,
-    title: 'Tasks',
-    path: ROUTE_KEY.Tasks,
-  },
+  // {
+  //   id: NAVIGATION_KEY.TASK,
+  //   title: 'Tasks',
+  //   path: ROUTE_KEY.Tasks,
+  // },
   {
     id: NAVIGATION_KEY.PEOPLE,
     title: 'People',
     path: ROUTE_KEY.People,
   },
-  {
-    id: NAVIGATION_KEY.TEAM,
-    title: 'Team',
-    path: ROUTE_KEY.Team,
-  },
+  // {
+  //   id: NAVIGATION_KEY.TEAM,
+  //   title: 'Team',
+  //   path: ROUTE_KEY.Team,
+  // },
 ];
 
 export const sideBarNavItems = [

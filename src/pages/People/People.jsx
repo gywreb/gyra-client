@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import GSpinner from 'src/components/GSpinner/GSpinner';
 import PersonCard from 'src/components/PersonCard/PersonCard';
 import { USER_PER_PAGE } from 'src/configs/constants';
+import { inviteUser } from 'src/store/auth/actions';
 import { getAllUser } from 'src/store/user/action';
 import GLayout from '../../components/GLayout/GLayout';
 
@@ -17,11 +18,16 @@ const People = () => {
   const toast = useToast();
   const { currentUserList, currentTotalPage, getAllLoading, isLoadMore } =
     useSelector(state => state.user);
+  const { userInfo, inviteLoading } = useSelector(state => state.auth);
   const [page, setPage] = useState(1);
+  const [inviteId, setInviteId] = useState(null);
+  const [search, setSearch] = useState('');
 
   const handleLoadUser = (perPage, page, isLoadMore) => {
     dispatch(getAllUser(perPage, page, toast, isLoadMore));
   };
+
+  console.log(`inviteId`, inviteId);
 
   useEffect(() => {
     handleLoadUser(USER_PER_PAGE, 1, false);
@@ -32,6 +38,11 @@ const People = () => {
       handleLoadUser(USER_PER_PAGE, page + 1, true);
       setPage(prev => prev + 1);
     }
+  };
+
+  const handleInvite = user => {
+    setInviteId(user._id);
+    dispatch(inviteUser(user, toast, () => setInviteId(null)));
   };
 
   return (
@@ -54,6 +65,8 @@ const People = () => {
                 _hover={{ borderColor: 'orange.500' }}
                 p={4}
                 placeholder="Search the the person email you want to find..."
+                onChange={e => setSearch(e.target.value)}
+                value={search}
               />
               <InputRightElement>
                 <Button bgColor="white" onClick={() => {}} mr={1} height="90%">
@@ -107,9 +120,20 @@ const People = () => {
               mr={24}
             >
               {currentUserList?.length
-                ? currentUserList?.map(person => (
-                    <PersonCard personInfo={person} />
-                  ))
+                ? currentUserList
+                    ?.filter(person => {
+                      if (!search.length) return true;
+                      let keyword = new RegExp(`${search}`, 'g');
+                      return person.email.match(keyword);
+                    })
+                    .map(person => (
+                      <PersonCard
+                        isInviting={inviteLoading && person._id === inviteId}
+                        isInvited={userInfo?.pendingUser.includes(person._id)}
+                        personInfo={person}
+                        handleInvite={() => handleInvite(person)}
+                      />
+                    ))
                 : null}
             </Wrap>
             {page < currentTotalPage - 1 ? (

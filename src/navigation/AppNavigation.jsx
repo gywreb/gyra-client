@@ -16,6 +16,7 @@ import PrivateRoute from './PrivateRoute/PrivateRoute';
 import { Switch, useHistory, useLocation } from 'react-router';
 import Board from 'src/pages/Board/Board';
 import G404Page from 'src/components/G404Page/G404Page';
+import Invitation from 'src/pages/Invitation/Invitation';
 
 const AppNavigation = () => {
   const { userInfo, token, getCurrentLoading } = useSelector(
@@ -27,10 +28,12 @@ const AppNavigation = () => {
   const location = useLocation();
 
   useEffect(() => {
+    if (location.pathname === ROUTE_KEY.Invitation) return;
     if (location.pathname)
       dispatch(getCurrent(history, toast, location.pathname));
     else dispatch(getCurrent(history, toast));
   }, []);
+
   if (getCurrentLoading) return <GOverlaySpinner />;
   else
     return (
@@ -53,6 +56,7 @@ const AppNavigation = () => {
         <PrivateRoute path={ROUTE_KEY.Board} component={<Board />} />
         <AuthRoute path={ROUTE_KEY.Register} component={<Register />} />
         <AuthRoute path={ROUTE_KEY.Login} component={<Login />} />
+        <Route path={ROUTE_KEY.Invitation} component={Invitation} />
         <Route path="*" component={G404Page} />
       </Switch>
     );

@@ -11,7 +11,7 @@ const GAutoCompletePicker = ({
   tooltip,
   placeholder,
   boxProps,
-  items,
+  data,
   onSelectedItemsChange,
   values,
   ...restAutoCompleteProps
@@ -45,17 +45,7 @@ const GAutoCompletePicker = ({
       )}
       <CUIAutoComplete
         placeholder={placeholder || 'Type in to select'}
-        items={
-          items || [
-            { value: 'ghana', label: 'Ghana' },
-            { value: 'nigeria', label: 'Nigeria' },
-            { value: 'kenya', label: 'Kenya' },
-            { value: 'southAfrica', label: 'South Africa' },
-            { value: 'unitedStates', label: 'United States' },
-            { value: 'canada', label: 'Canada' },
-            { value: 'germany', label: 'Germany' },
-          ]
-        }
+        items={data || []}
         tagStyleProps={{
           rounded: 'full',
         }}

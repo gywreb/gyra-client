@@ -40,6 +40,8 @@ export const TASK_API = {
 
 export const USER_API = {
   getAllUsers: `${USER_ROUTE}/all`,
+  inviteUser: userId => `${USER_ROUTE}/invite/${userId}`,
+  confirmInvitation: `${USER_ROUTE}/confirm-invite`,
 };
 
 export const apiClient = axios.create({

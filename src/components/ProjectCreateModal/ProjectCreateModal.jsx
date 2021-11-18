@@ -1,5 +1,7 @@
+import { Avatar } from '@chakra-ui/avatar';
 import { Button } from '@chakra-ui/button';
 import { FormControl, FormErrorMessage } from '@chakra-ui/form-control';
+import { Flex, Text } from '@chakra-ui/layout';
 import {
   Modal,
   ModalBody,
@@ -18,6 +20,7 @@ import { extractKeyFromNameTxt } from 'src/utils/extractKeyFromNameTxt';
 import { createProject } from '../../store/project/action';
 import GAutoCompletePicker from '../GAutoCompletePicker/GAutoCompletePicker';
 import GDatePicker from '../GDatePicker/GDatePicker';
+import GTextEditor from '../GTextEditor/GTextEditor';
 import GTextInput from '../GTextInput/GTextInput';
 
 const Form = chakra('form', {
@@ -42,6 +45,7 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
     description: '',
     begin_date: '',
     end_date: '',
+    members: [],
   });
 
   const { createLoading } = useSelector(state => state.project);
@@ -49,9 +53,11 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
   const [endDate, setEndDate] = useState(null);
 
   const dispatch = useDispatch();
+  const { userInfo } = useSelector(state => state.auth);
   const toast = useToast();
 
   const onCreateProject = data => {
+    data.members = data.members.map(mem => mem.value);
     dispatch(createProject(data, toast, closeModalOnSuccess));
   };
 
@@ -59,6 +65,28 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
     onClose();
     reset();
     clearErrors();
+  };
+
+  const memberPickerItemRenderer = selected => {
+    return (
+      <Flex alignItems="center">
+        <Avatar
+          size="sm"
+          src={`https://avatars.dicebear.com/api/gridy/${selected.label}.svg`}
+          bgColor="gray.50"
+          padding="2px"
+          onClick={() => {}}
+          mr={2}
+          borderColor="orange.700"
+          borderWidth={2}
+        />
+        <Text fontWeight="500">{selected.label}</Text>
+        <Text mr={1} ml={1}>
+          -
+        </Text>
+        <Text>{selected.email}</Text>
+      </Flex>
+    );
   };
 
   return (
@@ -142,11 +170,27 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
                 {errors.key && errors.key.message}
               </FormErrorMessage>
             </FormControl>
-            <GTextInput
-              title="Description"
-              placeholder="Type in project description"
-              isMultiline
-            />
+            <FormControl isInvalid={errors.description}>
+              <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value, name } }) => (
+                  <GTextEditor
+                    autoComplete="off"
+                    title="Description"
+                    placeholder="Type in task description"
+                    onChange={(content, delta, source, editor) => {
+                      onChange(content);
+                    }}
+                    value={value}
+                  />
+                )}
+                name="description"
+                defaultValue=""
+              />
+              <FormErrorMessage mb={4}>
+                {errors.description && errors.description.message}
+              </FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={errors.begin_date}>
               <Controller
                 control={control}
@@ -196,12 +240,33 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
                 {errors.end_date && errors.begin_date.end_date}
               </FormErrorMessage>
             </FormControl>
-
-            <GAutoCompletePicker
-              title="Members"
-              placeholder="Choose members from your team"
-              disableCreateItem
-            />
+            <FormControl isInvalid={errors.members}>
+              <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value, name } }) => (
+                  <GAutoCompletePicker
+                    title="Members"
+                    placeholder="Choose members from your team"
+                    disableCreateItem
+                    itemRenderer={memberPickerItemRenderer}
+                    data={userInfo?.team.map(mem => ({
+                      value: mem._id,
+                      label: mem.username,
+                      email: mem.email,
+                    }))}
+                    key={1}
+                    values={value}
+                    onSelectedItemsChange={changes =>
+                      onChange(changes.selectedItems)
+                    }
+                  />
+                )}
+                name="members"
+              />
+              <FormErrorMessage mb={4}>
+                {errors.members && errors.begin_date.members}
+              </FormErrorMessage>
+            </FormControl>
           </Form>
         </ModalBody>
         <ModalFooter>

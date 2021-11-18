@@ -1,10 +1,13 @@
 import { Avatar } from '@chakra-ui/avatar';
 import { Button } from '@chakra-ui/button';
+import Icon from '@chakra-ui/icon';
 import { Box, Flex, Text } from '@chakra-ui/layout';
 import React, { useEffect } from 'react';
+import { BiMailSend } from 'react-icons/bi';
+import { GiEmptyHourglass } from 'react-icons/gi';
 import { BaseStyles } from 'src/configs/styles';
 
-const PersonCard = ({ personInfo, handleInvite }) => {
+const PersonCard = ({ personInfo, handleInvite, isInvited, isInviting }) => {
   return (
     <Flex
       cursor="pointer"
@@ -36,14 +39,24 @@ const PersonCard = ({ personInfo, handleInvite }) => {
         {personInfo?.email}
       </Text>
       <Button
+        disabled={isInvited ? true : false}
+        variant={isInvited ? 'outline' : 'solid'}
         size="md"
         colorScheme="orange"
         type="submit"
         mt={6}
         onClick={handleInvite}
         width="75%"
+        leftIcon={
+          <Icon
+            as={isInvited ? GiEmptyHourglass : BiMailSend}
+            color={isInvited ? 'orange.600' : 'white'}
+            boxSize={5}
+          />
+        }
+        isLoading={isInviting}
       >
-        INVITE
+        {isInvited ? 'WAITING' : 'INVITE'}
       </Button>
     </Flex>
   );
