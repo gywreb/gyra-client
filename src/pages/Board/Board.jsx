@@ -14,7 +14,7 @@ import { chakra } from '@chakra-ui/system';
 import { useToast } from '@chakra-ui/toast';
 import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { BsSearch } from 'react-icons/bs';
+import { BsFillStarFill, BsPersonPlusFill, BsSearch } from 'react-icons/bs';
 import { FaPlus } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
@@ -42,6 +42,10 @@ import { PRIORITY_UI, TASK_TYPES_UI } from 'src/configs/constants';
 import TaskCard from 'src/components/TaskCard/TaskCard';
 import ColumnCard from 'src/components/ColumnCard/ColumnCard';
 import TaskEditModal from 'src/components/TaskEditModal/TaskEditModal';
+import { RiShieldStarFill } from 'react-icons/ri';
+import { Tooltip } from '@chakra-ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/popover';
+import InviteMembersForm from 'src/components/InviteMembersForm/InviteMembersForm';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -62,6 +66,7 @@ const Board = () => {
   const addColumnAnchorRef = useRef();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [taskEditOpen, setTaskEditOpen] = useState(false);
+  const [inviteMembersOpen, setInviteMembersOpen] = useState(false);
   const { isGetProjectDetail, currentProject } = useSelector(
     state => state.project
   );
@@ -82,6 +87,8 @@ const Board = () => {
     reset,
     setValue,
   } = useForm();
+
+  const [currentFilterMember, serCurrentFilterMember] = useState(null);
 
   const requestBoardData = async (projectId, history, toast) => {
     try {
@@ -221,29 +228,186 @@ const Board = () => {
                   </Button>
                 </InputRightElement>
               </InputGroup>
-              <Flex alignItems="center" ml={10}>
-                {[...Array(4).keys()].map((item, index) => (
-                  <Avatar
-                    cursor="pointer"
-                    boxSize={10}
-                    src={
-                      index === 0
-                        ? `https://avatars.dicebear.com/api/gridy/${userInfo?.username}.svg`
-                        : null
-                    }
-                    bgColor={'gray.500'}
-                    padding="2px"
-                    borderColor="white"
-                    borderWidth={3}
-                    onClick={() => {}}
-                    position="relative"
-                    left={`${index * -8}px`}
-                    zIndex={index * -1}
+              <Flex alignItems="center" ml={10} mr={6}>
+                {!currentProject?.members
+                  ? null
+                  : currentProject?.manager._id === userInfo._id
+                  ? [
+                      currentProject?.manager,
+                      ...currentProject?.members.filter(
+                        mem => mem._id !== userInfo._id
+                      ),
+                    ]
+                      .slice(0, 10)
+                      .map((item, index) => (
+                        <Tooltip label={item.username} placement="top">
+                          <Box
+                            position="relative"
+                            transition="all .3s"
+                            _hover={{
+                              transform: 'translate(0, -30%)',
+                              zIndex: 99,
+                            }}
+                            left={`${index * -8}px`}
+                            zIndex={
+                              currentProject?.members
+                                ? [
+                                    currentProject?.manager,
+                                    ...currentProject?.members,
+                                  ].length - index
+                                : 99 - index
+                            }
+                            __css={
+                              currentFilterMember?._id === item._id
+                                ? {
+                                    transform: 'translate(0, -30%)',
+                                    zIndex: 99,
+                                  }
+                                : null
+                            }
+                            onClick={() => {
+                              if (currentFilterMember) {
+                                if (currentFilterMember._id !== item._id) {
+                                  serCurrentFilterMember(item);
+                                } else {
+                                  serCurrentFilterMember(null);
+                                }
+                              } else {
+                                serCurrentFilterMember(item);
+                              }
+                            }}
+                          >
+                            <Avatar
+                              cursor="pointer"
+                              size="md"
+                              src={`https://avatars.dicebear.com/api/gridy/${item?.username}.svg`}
+                              bgColor={'gray.300'}
+                              padding="2px"
+                              borderColor="white"
+                              borderWidth={3}
+                              onClick={() => {}}
+                              position="relative"
+                            />
+                            {item._id === currentProject.manager._id ? (
+                              <Icon
+                                as={BsFillStarFill}
+                                position="absolute"
+                                right="-1%"
+                                top="-2%"
+                                color="orange.500"
+                              />
+                            ) : null}
+                          </Box>
+                        </Tooltip>
+                      ))
+                  : [
+                      currentProject?.manager,
+                      userInfo,
+                      ...currentProject?.members.filter(
+                        mem => mem._id !== userInfo._id
+                      ),
+                    ]
+                      .slice(0, 10)
+                      .map((item, index) => (
+                        <Tooltip label={item.username} placement="top">
+                          <Box
+                            position="relative"
+                            transition="all .3s"
+                            _hover={{
+                              transform: 'translate(0, -30%)',
+                              zIndex: 99,
+                            }}
+                            left={`${index * -8}px`}
+                            zIndex={
+                              currentProject?.members
+                                ? [
+                                    currentProject?.manager,
+                                    ...currentProject?.members,
+                                  ].length - index
+                                : 99 - index
+                            }
+                            __css={
+                              currentFilterMember?._id === item._id
+                                ? {
+                                    transform: 'translate(0, -30%)',
+                                    zIndex: 99,
+                                  }
+                                : null
+                            }
+                            onClick={() => {
+                              if (currentFilterMember) {
+                                if (currentFilterMember._id !== item._id) {
+                                  serCurrentFilterMember(item);
+                                } else {
+                                  serCurrentFilterMember(null);
+                                }
+                              } else {
+                                serCurrentFilterMember(item);
+                              }
+                            }}
+                          >
+                            <Avatar
+                              cursor="pointer"
+                              size="md"
+                              src={`https://avatars.dicebear.com/api/gridy/${item?.username}.svg`}
+                              bgColor={'gray.300'}
+                              padding="2px"
+                              borderColor="white"
+                              borderWidth={3}
+                              onClick={() => {}}
+                              position="relative"
+                            />
+                            {item._id === currentProject.manager._id ? (
+                              <Icon
+                                as={BsFillStarFill}
+                                position="absolute"
+                                right="-1%"
+                                top="-2%"
+                                color="orange.500"
+                              />
+                            ) : null}
+                          </Box>
+                        </Tooltip>
+                      ))}
+                {userInfo?._id === currentProject?.manager._id ? (
+                  <InviteMembersForm
+                    isOpen={inviteMembersOpen}
+                    onOpen={() => setInviteMembersOpen(true)}
+                    onClose={() => setInviteMembersOpen(false)}
+                    renderPopoverTrigger={() => (
+                      <Button
+                        variant="solid"
+                        onClick={() => {}}
+                        leftIcon={
+                          <Icon as={BsPersonPlusFill} color="black" size="sm" />
+                        }
+                      >
+                        Add Members
+                      </Button>
+                    )}
                   />
-                ))}
+                ) : null}
               </Flex>
               <Flex alignItems="center">
-                <Button variant="solid" onClick={() => {}}>
+                <Button
+                  variant="solid"
+                  colorScheme={
+                    currentFilterMember?._id === userInfo._id
+                      ? 'orange'
+                      : 'gray'
+                  }
+                  onClick={() => {
+                    if (currentFilterMember) {
+                      if (currentFilterMember._id !== userInfo._id) {
+                        serCurrentFilterMember(userInfo);
+                      } else {
+                        serCurrentFilterMember(null);
+                      }
+                    } else {
+                      serCurrentFilterMember(userInfo);
+                    }
+                  }}
+                >
                   Only My Tasks
                 </Button>
                 {/* <Button ml={4} variant="solid" onClick={() => {}}>
@@ -311,15 +475,27 @@ const Board = () => {
                         draggableId={column?._id}
                         index={index}
                         key={column._id}
+                        isDragDisabled={
+                          currentProject?.manager._id === userInfo?._id
+                            ? false
+                            : true
+                        }
                       >
                         {columnProvided => (
                           <ColumnCard
                             column={column}
+                            currentFilterMember={currentFilterMember}
                             columnProvided={columnProvided}
                             getTaskLoading={getTaskLoading}
                             taskListByProject={taskListByProject}
-                            renderTaskComponent={(taskProvided, task) => (
+                            userInfo={userInfo}
+                            renderTaskComponent={(
+                              taskProvided,
+                              task,
+                              index
+                            ) => (
                               <TaskCard
+                                index={index}
                                 taskProvided={taskProvided}
                                 task={task}
                                 key={task._id}
@@ -415,6 +591,7 @@ const Board = () => {
         }}
         key={'task-edit-modal'}
         selectedTask={selectedTask}
+        userInfo={userInfo}
       />
     </GLayout>
   );

@@ -11,6 +11,8 @@ const ColumnCard = ({
   getTaskLoading,
   taskListByProject,
   renderTaskComponent,
+  currentFilterMember,
+  userInfo,
 }) => {
   const draggableProps = columnProvided
     ? {
@@ -70,6 +72,29 @@ const ColumnCard = ({
           >
             {getTaskLoading ? (
               <GSpinner width="100%" height={10} boxSize={8} />
+            ) : currentFilterMember ? (
+              column.tasks
+                .map(taskId =>
+                  taskListByProject.find(task => task._id === taskId)
+                )
+                .filter(task => task.assignee._id === currentFilterMember._id)
+                .map((task, index) => (
+                  <Draggable
+                    draggableId={task?._id}
+                    index={index}
+                    key={task?.task_key}
+                    isDragDisabled={
+                      userInfo?._id === task.reporter._id ||
+                      userInfo?._id === task.assignee._id
+                        ? false
+                        : true
+                    }
+                  >
+                    {renderTaskComponent
+                      ? taskProvided => renderTaskComponent(taskProvided, task)
+                      : null}
+                  </Draggable>
+                ))
             ) : (
               column.tasks
                 .map(taskId =>
@@ -80,9 +105,25 @@ const ColumnCard = ({
                     draggableId={task?._id}
                     index={index}
                     key={task?.task_key}
+                    isDragDisabled={
+                      userInfo?._id === task.reporter._id ||
+                      userInfo?._id === task.assignee._id
+                        ? false
+                        : true
+                    }
                   >
                     {renderTaskComponent
-                      ? taskProvided => renderTaskComponent(taskProvided, task)
+                      ? taskProvided => {
+                          if (
+                            !(
+                              userInfo?._id === task.reporter._id ||
+                              userInfo?._id === task.assignee._id
+                            )
+                          ) {
+                            taskProvided.draggableProps.cursor = 'pointer';
+                          }
+                          return renderTaskComponent(taskProvided, task);
+                        }
                       : null}
                   </Draggable>
                 ))

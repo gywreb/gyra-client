@@ -5,7 +5,7 @@ import Icon from '@chakra-ui/icon';
 import { Box, Flex, Text } from '@chakra-ui/layout';
 import { chakra } from '@chakra-ui/system';
 import { Tooltip } from '@chakra-ui/tooltip';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -31,6 +31,7 @@ const GTextEditor = ({
   isCommentType,
   onSave,
   isSaveLoading,
+  editable = true,
   ...restEditorProps
 }) => {
   const commentStyle = isCommentType
@@ -72,6 +73,7 @@ const GTextEditor = ({
   ];
   const textEditor = useRef();
   const [isShowEditor, setIsShowEditor] = useState(false);
+  const [isOnSave, setIsOnSave] = useState(false);
   const { userInfo } = useSelector(state => state.auth);
 
   useOutsideClick({
@@ -80,6 +82,13 @@ const GTextEditor = ({
       setIsShowEditor(false);
     },
   });
+
+  useEffect(() => {
+    if (isOnSave && !isSaveLoading) {
+      setIsShowEditor(false);
+      setIsOnSave(false);
+    }
+  }, [isSaveLoading]);
 
   return (
     <Box mb={4} {...boxProps} width="100%">
@@ -148,9 +157,8 @@ const GTextEditor = ({
                 mr={1}
                 type="submit"
                 onClick={() => {
+                  setIsOnSave(true);
                   onSave();
-
-                  setIsShowEditor(false);
                 }}
                 isLoading={isSaveLoading}
               >
@@ -213,17 +221,25 @@ const GTextEditor = ({
             pr={4}
             borderRadius={6}
             transition="all 0.3s"
-            backgroundColor="gray.100"
-            _hover={{ backgroundColor: 'gray.200' }}
-            onClick={() => {
-              setIsShowEditor(true);
-            }}
+            backgroundColor={editable ? 'gray.100' : 'white'}
+            _hover={editable ? { backgroundColor: 'gray.200' } : {}}
+            onClick={
+              editable
+                ? () => {
+                    setIsShowEditor(true);
+                  }
+                : () => {}
+            }
             width="100%"
             {...commentStyle}
           >
-            <Text color="gray.400">
-              {emptyValueText || 'Add content here...'}
-            </Text>
+            {editable ? (
+              <Text color="gray.400">
+                {emptyValueText || 'Add content here...'}
+              </Text>
+            ) : (
+              <Text color="gray.400">No content here yet ...</Text>
+            )}
           </Box>
         </Flex>
       ) : null}

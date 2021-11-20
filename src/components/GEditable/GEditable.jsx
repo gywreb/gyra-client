@@ -19,6 +19,7 @@ const GEditable = ({
   onChange,
   textStyle,
   titleStyle,
+  editable = true,
   ...restInputProps
 }) => {
   const editorRef = useRef();
@@ -66,10 +67,14 @@ const GEditable = ({
         <Box
           borderRadius={8}
           transition="all 0.3s"
-          _hover={{ backgroundColor: 'gray.100' }}
-          onClick={() => {
-            setIsShowEditor(true);
-          }}
+          _hover={editable ? { backgroundColor: 'gray.100' } : {}}
+          onClick={
+            editable
+              ? () => {
+                  setIsShowEditor(true);
+                }
+              : () => {}
+          }
           p={1}
           pl={2}
         >

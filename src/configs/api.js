@@ -24,6 +24,7 @@ export const AUTH_API = {
 export const PROJECT_API = {
   createProject: `${PROJECT_ROUTE}/create-project`,
   getProjects: `${PROJECT_ROUTE}`,
+  editProject: projectId => `${PROJECT_ROUTE}/edit-project/${projectId}`,
 };
 
 export const COLUMN_API = {

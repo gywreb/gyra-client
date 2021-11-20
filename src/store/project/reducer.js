@@ -2,6 +2,9 @@ import {
   CREATE_PROJECT_ERROR,
   CREATE_PROJECT_REQUEST,
   CREATE_PROJECT_SUCCESS,
+  EDIT_PROJECT_ERROR,
+  EDIT_PROJECT_REQUEST,
+  EDIT_PROJECT_SUCCESS,
   GET_PROJECTS_ERROR,
   GET_PROJECTS_REQUEST,
   GET_PROJECTS_SUCCESS,
@@ -16,6 +19,7 @@ const initialState = {
   currentProject: null,
   createLoading: false,
   getLoading: false,
+  editLoading: false,
   error: null,
 };
 
@@ -71,6 +75,40 @@ export default function projectReducer(state = initialState, action) {
         currentProject: null,
         error: action.payload.error,
       };
+    }
+    case EDIT_PROJECT_REQUEST: {
+      return { ...state, editLoading: true };
+    }
+    case EDIT_PROJECT_SUCCESS: {
+      const { updatedProject } = action.payload;
+      const updatedProjectIndex = state.projectList.findIndex(
+        project => project._id === updatedProject._id
+      );
+      if (updatedProject._id === state.currentProject._id) {
+        return {
+          ...state,
+          editLoading: false,
+          currentProject: { ...state.currentProject, ...updatedProject },
+          projectList: [
+            ...state.projectList.slice(0, updatedProjectIndex),
+            { ...updatedProject },
+            ...state.projectList.slice(updatedProjectIndex + 1),
+          ],
+        };
+      } else {
+        return {
+          ...state,
+          editLoading: false,
+          projectList: [
+            ...state.projectList.slice(0, updatedProjectIndex),
+            { ...updatedProject },
+            ...state.projectList.slice(updatedProjectIndex + 1),
+          ],
+        };
+      }
+    }
+    case EDIT_PROJECT_ERROR: {
+      return { ...state, editLoading: false, error: action.payload.action };
     }
     default:
       return state;

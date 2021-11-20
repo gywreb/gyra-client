@@ -284,13 +284,17 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
                     title="Assignee"
                     placeholder="You will assign this task to..."
                     value={value}
-                    data={[userInfo]}
+                    data={
+                      currentProject
+                        ? [currentProject?.manager, ...currentProject?.members]
+                        : [userInfo]
+                    }
                     itemTextProp="username"
                     noCapOntext
                     renderLeftItemAddon={item => (
                       <Avatar
                         size="sm"
-                        src={`https://avatars.dicebear.com/api/gridy/${userInfo?.username}.svg`}
+                        src={`https://avatars.dicebear.com/api/gridy/${item?.username}.svg`}
                         bgColor="orange.50"
                         padding="2px"
                         borderColor="orange.700"

@@ -28,6 +28,7 @@ const GFormMenu = ({
   noIcon,
   noDisplayValueText,
   titleStyle,
+  editable = true,
   ...restMenuButtonProps
 }) => {
   return (
@@ -61,7 +62,11 @@ const GFormMenu = ({
         <MenuButton
           as={Button}
           width={menuWidth || '100%'}
-          rightIcon={noIcon ? null : <Icon as={ChevronDownIcon} />}
+          rightIcon={
+            !editable ? null : noIcon ? null : <Icon as={ChevronDownIcon} />
+          }
+          disabled={editable ? false : true}
+          _disabled={{ opacity: 1 }}
           {...restMenuButtonProps}
         >
           {value && renderValue ? (

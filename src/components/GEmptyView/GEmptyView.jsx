@@ -13,7 +13,7 @@ const GEmptyView = ({ message, width, height, icon, iconSize }) => {
       height={height || '100%'}
     >
       <Icon as={icon || ImDrawer2} color="gray.400" boxSize={iconSize || 24} />
-      <Text color="gray.400" fontSize="lg" mt={4}>
+      <Text color="gray.400" fontSize="lg" mt={4} textAlign="center">
         {message || 'No Content Here'}
       </Text>
     </Flex>

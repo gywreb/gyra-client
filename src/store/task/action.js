@@ -154,8 +154,7 @@ export const moveTaskInBoard =
   };
 
 export const editTask =
-  (taskId, updateParams, toast, closeModalOnSuccess) =>
-  async (dispatch, getState) => {
+  (taskId, updateParams, toast) => async (dispatch, getState) => {
     const { taskListByProject } = getState().task;
     const taskInStore = taskListByProject.find(task => task._id === taskId);
     if (!taskInStore) return;
@@ -181,7 +180,6 @@ export const editTask =
         });
       }
       dispatch({ type: EDIT_TASK_SUCCESS, payload: { updatedTask } });
-      if (closeModalOnSuccess) closeModalOnSuccess();
       toast({
         title: `Task ${updatedTask.task_key} updated successfully!`,
         position: 'top',

@@ -63,7 +63,7 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
           cursor="pointer"
           boxSize={10}
           src={`https://avatars.dicebear.com/api/gridy/${task.assignee?.username}.svg`}
-          bgColor={'gray.500'}
+          bgColor={'gray.400'}
           padding="2px"
           borderColor="white"
           borderWidth={3}

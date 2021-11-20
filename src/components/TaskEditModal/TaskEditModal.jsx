@@ -107,7 +107,9 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
     console.log('isDirty :>> ', isDirty);
   }, [isDirty]);
 
-  console.log(`selectedTask`, selectedTask);
+  const isAbleEdit =
+    userInfo?._id === selectedTask?.reporter?._id ||
+    userInfo?._id === selectedTask?.assignee?._id;
 
   return (
     <Modal
@@ -142,6 +144,7 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                         variant="ghost"
                         size="sm"
                         boxProps={{ mb: 1 }}
+                        editable={isAbleEdit ? true : false}
                         renderLeftItemAddon={item => (
                           <Flex
                             boxSize={5}
@@ -202,6 +205,7 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                         onChange={value => onChange(value)}
                         placeholder={'Type in task name'}
                         textStyle={{ fontSize: '3xl', fontWeight: '500' }}
+                        editable={isAbleEdit ? true : false}
                       />
                     )}
                     name="name"
@@ -233,6 +237,7 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                         titleStyle={{ fontWeight: '400' }}
                         onSave={handleSubmit(onSaveDescription)}
                         isSaveLoading={editTaskLoading && !isUpdateWhole}
+                        editable={isAbleEdit ? true : false}
                       />
                     )}
                     name="description"
@@ -282,6 +287,8 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                         valueTextProp="name"
                         noCapOntext
                         onClick={item => onChange(item)}
+                        editable={isAbleEdit ? true : false}
+                        // variant={isAbleEdit ? 'solid' : 'ghost'}
                       />
                     )}
                     name="status"
@@ -344,6 +351,7 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                               </Flex>
                             )}
                             onClick={item => onChange(item.label)}
+                            editable={isAbleEdit ? true : false}
                           />
                         )}
                         name="priority"
@@ -378,13 +386,20 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                             title="Assignee"
                             placeholder="You will assign this task to..."
                             value={value}
-                            data={[userInfo]}
+                            data={
+                              currentProject
+                                ? [
+                                    currentProject?.manager,
+                                    ...currentProject?.members,
+                                  ]
+                                : [userInfo]
+                            }
                             itemTextProp="username"
                             noCapOntext
                             renderLeftItemAddon={item => (
                               <Avatar
                                 size="sm"
-                                src={`https://avatars.dicebear.com/api/gridy/${userInfo?.username}.svg`}
+                                src={`https://avatars.dicebear.com/api/gridy/${item?.username}.svg`}
                                 bgColor="orange.50"
                                 padding="2px"
                                 borderColor="orange.700"
@@ -409,6 +424,7 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                               </Flex>
                             )}
                             onClick={item => onChange(item)}
+                            editable={isAbleEdit ? true : false}
                           />
                         )}
                         name="assignee"
@@ -439,26 +455,30 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button
-            colorScheme="orange"
-            mr={3}
-            type="submit"
-            onClick={handleSubmit(onUpdateTask)}
-            isLoading={editTaskLoading && isUpdateWhole}
-            disabled={isDirty ? false : true}
-          >
-            Update
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              onClose();
-              reset();
-              clearErrors();
-            }}
-          >
-            Cancel
-          </Button>
+          {isAbleEdit ? (
+            <>
+              <Button
+                colorScheme="orange"
+                mr={3}
+                type="submit"
+                onClick={handleSubmit(onUpdateTask)}
+                isLoading={editTaskLoading && isUpdateWhole}
+                disabled={isDirty ? false : true}
+              >
+                Update
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  onClose();
+                  reset();
+                  clearErrors();
+                }}
+              >
+                Cancel
+              </Button>{' '}
+            </>
+          ) : null}
         </ModalFooter>
       </ModalContent>
     </Modal>
