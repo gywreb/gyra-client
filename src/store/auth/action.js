@@ -62,12 +62,20 @@ export const registerAccount =
       });
     } catch (error) {
       console.log(error);
+      console.log(error?.response?.data);
+      let errorMessage = null;
+      if (error?.response?.data) {
+        const { message } = error?.response?.data;
+        if (typeof message === 'string') errorMessage = message;
+        else if (typeof message === 'object')
+          errorMessage = formatErrorMessage(message);
+      }
       toast({
-        title: error.response?.data?.message || 'Register Error',
-        status: 'error',
+        title: errorMessage || 'failed to register!',
         position: 'top',
-        isClosable: true,
+        status: 'error',
         duration: 3000,
+        isClosable: true,
       });
       dispatch({ type: REGISTER_ERROR, payload: { error } });
     }
@@ -106,12 +114,20 @@ export const login = (params, history, toast, resetForm) => async dispatch => {
     });
   } catch (error) {
     console.log(error);
+    console.log(error?.response?.data);
+    let errorMessage = null;
+    if (error?.response?.data) {
+      const { message } = error?.response?.data;
+      if (typeof message === 'string') errorMessage = message;
+      else if (typeof message === 'object')
+        errorMessage = formatErrorMessage(message);
+    }
     toast({
-      title: error.response?.data?.message || 'Login Error',
-      status: 'error',
+      title: errorMessage || 'failed to login!',
       position: 'top',
-      isClosable: true,
+      status: 'error',
       duration: 3000,
+      isClosable: true,
     });
     dispatch({ type: LOGIN_ERROR, payload: { error } });
   }
