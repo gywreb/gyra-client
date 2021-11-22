@@ -12,7 +12,7 @@ import {
   REGISTER_ERROR,
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
-} from './actions';
+} from './action';
 
 const initialState = {
   userInfo: null,

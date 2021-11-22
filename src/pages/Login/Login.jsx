@@ -21,7 +21,7 @@ import { Link, useLocation, useHistory } from 'react-router-dom';
 
 import { useDispatch, useSelector } from 'react-redux';
 import QueryString from 'query-string';
-import { login } from 'src/store/auth/actions';
+import { login } from 'src/store/auth/action';
 import { toast, useToast } from '@chakra-ui/toast';
 import MotionDiv from 'src/components/MotionDiv/MotionDiv';
 

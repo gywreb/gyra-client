@@ -11,6 +11,7 @@ import { MdArrowUpward } from 'react-icons/md';
 import { RiTestTubeFill } from 'react-icons/ri';
 
 export const USER_PER_PAGE = 12;
+export const ACTIVITY_PER_PAGE = 10;
 
 export const TASK_TYPES = ['feature', 'bug', 'improvement', 'test', 'request'];
 

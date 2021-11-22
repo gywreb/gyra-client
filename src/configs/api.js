@@ -14,6 +14,7 @@ const PROJECT_ROUTE = '/project';
 const COLUMN_ROUTE = '/column';
 const TASK_ROUTE = '/task';
 const USER_ROUTE = '/user';
+const ACTIVITY_ROUTE = '/activity';
 
 export const AUTH_API = {
   register: `${AUTH_ROUTE}/register`,
@@ -43,6 +44,10 @@ export const USER_API = {
   getAllUsers: `${USER_ROUTE}/all`,
   inviteUser: userId => `${USER_ROUTE}/invite/${userId}`,
   confirmInvitation: `${USER_ROUTE}/confirm-invite`,
+};
+
+export const ACTIVITY_API = {
+  getActivityByProject: projectId => `${ACTIVITY_ROUTE}/${projectId}`,
 };
 
 export const apiClient = axios.create({

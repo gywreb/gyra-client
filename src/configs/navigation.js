@@ -41,7 +41,7 @@ export const sideBarNavItems = [
   {
     id: NAVIGATION_KEY.ACTIVITY,
     path: ROUTE_KEY.Activity,
-    name: 'Activity',
+    name: 'Main Activity',
     icon: AiOutlineSchedule,
   },
   {
@@ -53,7 +53,7 @@ export const sideBarNavItems = [
   {
     id: NAVIGATION_KEY.SETTING,
     path: ROUTE_KEY.Setting,
-    name: 'Project Settings',
+    name: 'Project Setting',
     icon: FiSettings,
   },
 ];

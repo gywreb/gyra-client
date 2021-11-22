@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import GSpinner from 'src/components/GSpinner/GSpinner';
 import PersonCard from 'src/components/PersonCard/PersonCard';
 import { USER_PER_PAGE } from 'src/configs/constants';
-import { inviteUser } from 'src/store/auth/actions';
+import { inviteUser } from 'src/store/auth/action';
 import { getAllUser } from 'src/store/user/action';
 import GLayout from '../../components/GLayout/GLayout';
 
@@ -136,7 +136,7 @@ const People = () => {
                     ))
                 : null}
             </Wrap>
-            {page < currentTotalPage - 1 ? (
+            {page < currentTotalPage ? (
               <Button
                 size="lg"
                 colorScheme="orange"

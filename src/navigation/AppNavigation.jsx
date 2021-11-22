@@ -6,7 +6,7 @@ import GOverlaySpinner from 'src/components/GOverlaySpinner/GOverlaySpinner';
 import { ROUTE_KEY } from 'src/configs/router';
 import Projects from 'src/pages/Projects/Projects';
 import Tasks from 'src/pages/Tasks/Tasks';
-import { getCurrent } from 'src/store/auth/actions';
+import { getCurrent } from 'src/store/auth/action';
 import Login from '../pages/Login/Login';
 import People from '../pages/People/People';
 import Register from '../pages/Register/Register';
@@ -17,6 +17,7 @@ import { Switch, useHistory, useLocation } from 'react-router';
 import Board from 'src/pages/Board/Board';
 import G404Page from 'src/components/G404Page/G404Page';
 import Invitation from 'src/pages/Invitation/Invitation';
+import Activity from 'src/pages/Activity/Activity';
 
 const AppNavigation = () => {
   const { userInfo, token, getCurrentLoading } = useSelector(
@@ -54,6 +55,7 @@ const AppNavigation = () => {
         <PrivateRoute path={ROUTE_KEY.Team} component={<Team />} />
         <PrivateRoute path={ROUTE_KEY.People} component={<People />} />
         <PrivateRoute path={ROUTE_KEY.Board} component={<Board />} />
+        <PrivateRoute path={ROUTE_KEY.Activity} component={<Activity />} />
         <AuthRoute path={ROUTE_KEY.Register} component={<Register />} />
         <AuthRoute path={ROUTE_KEY.Login} component={<Login />} />
         <Route path={ROUTE_KEY.Invitation} component={Invitation} />

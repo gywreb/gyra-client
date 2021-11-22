@@ -120,8 +120,8 @@ const ColumnCard = ({
                               userInfo?._id === task.assignee._id
                             )
                           ) {
-                            taskProvided.draggableProps.cursor = 'pointer';
-                          }
+                            taskProvided.draggableProps.isAuth = false;
+                          } else taskProvided.draggableProps.isAuth = true;
                           return renderTaskComponent(taskProvided, task);
                         }
                       : null}

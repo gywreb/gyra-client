@@ -24,7 +24,7 @@ import {
 } from '@chakra-ui/popover';
 import { FaChevronRight } from 'react-icons/fa';
 import { RiLogoutBoxRFill } from 'react-icons/ri';
-import { logout } from 'src/store/auth/actions';
+import { logout } from 'src/store/auth/action';
 
 const HeaderBar = () => {
   const { userInfo } = useSelector(state => state.auth);

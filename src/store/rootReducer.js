@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import activityReducer from './activity/reducer';
 import authReducer from './auth/reducer';
 import columnReducer from './column/reducer';
 import navigationReducer from './navigation/reducer';
@@ -13,6 +14,7 @@ const reducer = combineReducers({
   column: columnReducer,
   task: taskReducer,
   user: userReducer,
+  activity: activityReducer,
 });
 
 export default reducer;

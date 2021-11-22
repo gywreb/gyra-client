@@ -21,7 +21,7 @@ import { Link, useHistory } from 'react-router-dom';
 import MotionDiv from 'src/components/MotionDiv/MotionDiv';
 import { useDispatch } from 'react-redux';
 import { useToast } from '@chakra-ui/toast';
-import { registerAccount } from 'src/store/auth/actions';
+import { registerAccount } from 'src/store/auth/action';
 import { useSelector } from 'react-redux';
 
 const Form = chakra('form', {

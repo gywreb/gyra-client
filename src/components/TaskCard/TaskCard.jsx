@@ -22,20 +22,23 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
       borderRadius={4}
       mb={2}
       p={2}
-      _hover={{ bgColor: 'orange.50' }}
+      _hover={
+        taskProvided.draggableProps.isAuth ? { bgColor: 'orange.50' } : {}
+      }
       _active={{ bgColor: 'orange.100' }}
       transition="all 0.2s"
       onClick={onClick}
       {...draggableProps}
     >
       <Flex justifyContent="space-between">
-        <Box maxWidth={'80%'}>
+        <Box maxWidth="75%">
           <Text color="gray.500" mb={1}>
             {task?.task_key}
           </Text>
-          <Text maxH={12} mb={2} overflowY="hidden">
+          <Text maxH={12} mb={2} overflowY="hidden" noOfLines={2}>
             {task?.name}
           </Text>
+
           <Flex alignItems="center">
             <Flex
               boxSize={5}
@@ -59,16 +62,30 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
             />
           </Flex>
         </Box>
-        <Avatar
-          cursor="pointer"
-          boxSize={10}
-          src={`https://avatars.dicebear.com/api/gridy/${task.assignee?.username}.svg`}
-          bgColor={'gray.400'}
-          padding="2px"
-          borderColor="white"
-          borderWidth={3}
-          onClick={() => {}}
-        />
+        <Flex
+          flexDir="column"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Avatar
+            cursor="pointer"
+            boxSize={10}
+            src={`https://avatars.dicebear.com/api/gridy/${task.assignee?.username}.svg`}
+            bgColor={'gray.400'}
+            padding="2px"
+            borderColor="white"
+            borderWidth={3}
+            onClick={() => {}}
+            alignSelf="flex-end"
+          />
+          {taskProvided.draggableProps.isAuth ? null : (
+            <Flex>
+              <Text fontSize="xs" fontStyle="italic" color="gray.500">
+                Read-only
+              </Text>
+            </Flex>
+          )}
+        </Flex>
       </Flex>
     </Box>
   );

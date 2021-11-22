@@ -8,11 +8,7 @@ import LogoBanner from '../../assets/images/gyra-banner-logo-3-trans.png';
 import { Button } from '@chakra-ui/button';
 import { useToast } from '@chakra-ui/toast';
 import { useDispatch } from 'react-redux';
-import {
-  getCurrent,
-  GET_CURRENT_SUCCESS,
-  LOGOUT,
-} from 'src/store/auth/actions';
+import { getCurrent, GET_CURRENT_SUCCESS, LOGOUT } from 'src/store/auth/action';
 import { apiClient, AUTH_API, USER_API } from 'src/configs/api';
 import { SET_CURRENT_ACTIVE } from 'src/store/navigation/action';
 import { NAVIGATION_KEY } from 'src/configs/navigation';
