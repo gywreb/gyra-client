@@ -1,6 +1,6 @@
 import { Image } from '@chakra-ui/image';
 import { Box, Flex, Text } from '@chakra-ui/layout';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BaseStyles } from 'src/configs/styles';
 import LogoGyraBanner from '../../assets/images/gyra-banner-logo-3-trans.png';
 import { Button, IconButton } from '@chakra-ui/button';
@@ -17,20 +17,46 @@ import {
   Popover,
   PopoverArrow,
   PopoverBody,
-  PopoverCloseButton,
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
 } from '@chakra-ui/popover';
-import { FaChevronRight } from 'react-icons/fa';
+import { FaBellSlash, FaChevronRight } from 'react-icons/fa';
 import { RiLogoutBoxRFill } from 'react-icons/ri';
 import { logout } from 'src/store/auth/action';
+import { format } from 'timeago.js';
+import GEmptyView from '../GEmptyView/GEmptyView';
+import {
+  getNotificationList,
+  seenAllNoti,
+} from 'src/store/notification/action';
+import moment from 'moment';
+import { NOTI_FETCH_HZ, NOTI_PER_PAGE } from 'src/configs/constants';
+import { useToast } from '@chakra-ui/toast';
+import GSpinner from '../GSpinner/GSpinner';
+import { chakra } from '@chakra-ui/system';
+
+const Span = chakra('span', {
+  baseStyle: {},
+});
 
 const HeaderBar = () => {
   const { userInfo } = useSelector(state => state.auth);
   const { currentActive } = useSelector(state => state.navigation);
+  const {
+    notiList,
+    totalNotis,
+    getLoading: getNotisLoading,
+    isLoadMoreNotis,
+    lastFetchData,
+    seenAllLoading,
+    totalUnseen,
+  } = useSelector(state => state.notification);
   const dispatch = useDispatch();
   const history = useHistory();
+  const toast = useToast();
+
+  const [page, setPage] = useState(1);
 
   const options = [
     {
@@ -39,6 +65,21 @@ const HeaderBar = () => {
       handler: () => dispatch(logout(history)),
     },
   ];
+
+  const requestingNotiList = (page, isLoadMore) => {
+    dispatch(getNotificationList(NOTI_PER_PAGE, page, toast, isLoadMore));
+  };
+
+  useEffect(() => {
+    requestingNotiList(1, false);
+  }, []);
+
+  const handleLoadMoreNotis = () => {
+    if (page < totalNotis) {
+      requestingNotiList(page + 1, true);
+      setPage(prev => prev + 1);
+    }
+  };
 
   const renderOptionsMenu = () => {
     return (
@@ -103,6 +144,125 @@ const HeaderBar = () => {
               </Text>
             </Flex>
           ))}
+        </PopoverBody>
+      </PopoverContent>
+    );
+  };
+
+  const renderNotiList = () => {
+    return (
+      <PopoverContent minW="500px" position="relative" zIndex="99">
+        <PopoverHeader fontWeight="semibold" transition="all .3s">
+          <Flex alignItems="center" justifyContent="space-between">
+            <Text color="gray.600" fontSize="md">
+              Notifications
+            </Text>
+            <Flex alignItems="center">
+              <Text
+                color="orange.500"
+                fontSize="xs"
+                cursor="pointer"
+                transition="all .3s"
+                _hover={{ color: 'orange.700' }}
+                onClick={() => {
+                  dispatch(seenAllNoti(toast));
+                }}
+              >
+                Mark Read-All
+              </Text>
+              {seenAllLoading ? (
+                <Box ml={1}>
+                  <GSpinner
+                    width="20px"
+                    height="20px"
+                    boxSize={4}
+                    thickness="2px"
+                  />
+                </Box>
+              ) : null}
+            </Flex>
+          </Flex>
+        </PopoverHeader>
+        <PopoverArrow />
+        <PopoverBody maxHeight="500px" overflowY="auto" overflowX="hidden">
+          {getNotisLoading ? (
+            <GSpinner width="100%" height="200px" boxSize={14} />
+          ) : notiList?.length ? (
+            notiList?.map((item, index) => (
+              <Box
+                borderBottomWidth={index === notiList?.length - 1 ? 0 : 1.5}
+                borderBottomColor="gray.300"
+                _hover={{ bgColor: 'gray.200' }}
+                transition="all .3s"
+                p={2}
+              >
+                <Flex borderRadius={6}>
+                  <Avatar
+                    size="md"
+                    src={`https://avatars.dicebear.com/api/gridy/${item?.sender?.username}.svg`}
+                    bgColor="gray.50"
+                    padding="2px"
+                    mr={2}
+                    borderColor="orange.700"
+                    borderWidth={2}
+                  />
+                  <Flex
+                    alignItems="center"
+                    justifyContent="space-between"
+                    flexGrow={1}
+                  >
+                    <Box
+                      alignItems="center"
+                      onClick={item.handler}
+                      maxWidth="85%"
+                    >
+                      <Text
+                        size="md"
+                        fontSize="md"
+                        color="gray.800"
+                        fontWeight={item.seen ? 'normal' : '500'}
+                      >
+                        <Span fontWeight="600" color="orange.700">
+                          {item?.sender?.username}{' '}
+                        </Span>
+                        {item.content}
+                      </Text>
+                      <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                        {format(item?.createdAt)}
+                      </Text>
+                    </Box>
+                    {item.seen ? null : (
+                      <Box
+                        width="12px"
+                        height="12px"
+                        borderRadius="6px"
+                        bgColor="orange.500"
+                      ></Box>
+                    )}
+                  </Flex>
+                </Flex>
+              </Box>
+            ))
+          ) : (
+            <GEmptyView
+              height="200px"
+              width="100%"
+              icon={FaBellSlash}
+              message="No notifications here yet"
+            />
+          )}
+          {page < totalNotis ? (
+            <Button
+              size="sm"
+              colorScheme="orange"
+              mt={4}
+              onClick={handleLoadMoreNotis}
+              isFullWidth
+              isLoading={isLoadMoreNotis}
+            >
+              LOAD MORE
+            </Button>
+          ) : null}
         </PopoverBody>
       </PopoverContent>
     );
@@ -186,33 +346,54 @@ const HeaderBar = () => {
             {userInfo?.username}
           </Text>
         </Flex>
-        <IconButton
-          borderRadius="50%"
-          bg="gray.100"
-          position="relative"
-          fontSize="12px"
-          fontWeight="bold"
-          color="white"
-          icon={<Icon as={AiFillBell} color="orange.500" boxSize={8} />}
-          boxSize={12}
-          _after={{
-            content: `'99'`,
-            position: 'absolute',
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            top: '0',
-            left: '65%',
-            backgroundColor: 'red.500',
-            borderWidth: '1px',
-            borderColor: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
+        <Popover
+          isLazy
+          placement="bottom-end"
+          onOpen={() => {
+            if (
+              lastFetchData &&
+              moment().diff(moment(lastFetchData), 'minutes') > NOTI_FETCH_HZ
+            ) {
+              requestingNotiList(1, false);
+            }
           }}
-          mr={4}
-        />
+        >
+          <PopoverTrigger>
+            <IconButton
+              borderRadius="50%"
+              bg="gray.100"
+              position="relative"
+              fontSize="12px"
+              fontWeight="bold"
+              color="white"
+              icon={<Icon as={AiFillBell} color="orange.500" boxSize={8} />}
+              boxSize={12}
+              _after={
+                totalUnseen
+                  ? {
+                      content: `'${totalUnseen}'`,
+                      position: 'absolute',
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      top: '0',
+                      left: '65%',
+                      backgroundColor: 'red.500',
+                      borderWidth: '1px',
+                      borderColor: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                    }
+                  : {}
+              }
+              mr={4}
+            />
+          </PopoverTrigger>
+          {renderNotiList()}
+        </Popover>
+
         <Popover isLazy placement="bottom-start">
           <PopoverTrigger>
             <IconButton

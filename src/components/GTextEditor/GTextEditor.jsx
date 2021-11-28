@@ -177,32 +177,55 @@ const GTextEditor = ({
         </Flex>
       ) : null}
       {/* display html markup content */}
-      {isShowEditor ? null : value && isEditable ? (
-        <Box
-          borderRadius={8}
-          transition="all 0.3s"
-          pl={-2}
-          onClick={() => {
-            setIsShowEditor(true);
-          }}
-          borderWidth={1.2}
-          borderColor="gray.300"
-          _hover={{
-            borderColor: 'gray.500',
-          }}
-        >
-          <div className="ql-snow">
-            <div className="ql-editor">
-              <EditContent
-                dangerouslySetInnerHTML={{
-                  __html: value,
-                }}
-              />
+      {isShowEditor ? null : value?.length && isEditable ? (
+        <Flex>
+          {isCommentType ? (
+            <Avatar
+              size="sm"
+              src={`https://avatars.dicebear.com/api/gridy/${userInfo?.username}.svg`}
+              bgColor="orange.50"
+              padding="2px"
+              borderColor="orange.700"
+              borderWidth={2}
+              mr={2}
+            />
+          ) : null}
+          <Box
+            borderRadius={8}
+            transition="all 0.3s"
+            pl={-2}
+            onClick={
+              editable
+                ? () => {
+                    setIsShowEditor(true);
+                  }
+                : () => {}
+            }
+            borderWidth={1.2}
+            borderColor="gray.300"
+            _hover={
+              editable
+                ? {
+                    borderColor: 'gray.500',
+                  }
+                : {}
+            }
+            width="100%"
+            {...commentStyle}
+          >
+            <div className="ql-snow">
+              <div className="ql-editor">
+                <EditContent
+                  dangerouslySetInnerHTML={{
+                    __html: value,
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        </Box>
+          </Box>
+        </Flex>
       ) : !value && isEditable ? (
-        <Flex alignItems="center">
+        <Flex>
           {isCommentType ? (
             <Avatar
               size="sm"

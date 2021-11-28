@@ -148,7 +148,10 @@ const Projects = () => {
                           pageSize * currentPage
                         )
                         .map(item => (
-                          <Tr>
+                          <Tr
+                            transition="all .3s"
+                            _hover={{ bgColor: 'gray.100' }}
+                          >
                             <Td>
                               <Flex alignItems="center">
                                 <Flex

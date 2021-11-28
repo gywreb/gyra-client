@@ -18,9 +18,18 @@ import { Image } from '@chakra-ui/image';
 import { chakra } from '@chakra-ui/system';
 import moment from 'moment';
 import { Button } from '@chakra-ui/button';
+import 'react-quill/dist/quill.snow.css';
 
 const Span = chakra('span', {
   baseStyle: {},
+});
+
+const QuillDiv = chakra('div', {
+  baseStyle: {},
+});
+
+const EditContent = chakra('div', {
+  baseStyle: { fontSize: '14px' },
 });
 
 const Activity = () => {
@@ -96,10 +105,26 @@ const Activity = () => {
             <Span fontWeight="600" color="orange.700">
               {item?.creator?.username}{' '}
             </Span>
-            {item.content}
+            {item?.content}
           </Text>
+          {item?.subContent ? (
+            <QuillDiv className="ql-snow" mt={2} mb={2}>
+              <QuillDiv
+                className="ql-editor"
+                bgColor="gray.100"
+                borderRadius={8}
+                // width="100%"
+              >
+                <EditContent
+                  dangerouslySetInnerHTML={{
+                    __html: item?.subContent,
+                  }}
+                />
+              </QuillDiv>
+            </QuillDiv>
+          ) : null}
           <Text fontSize="xs" color="gray.500" fontStyle="italic">
-            {`${moment(item.createdAt).format('DD/MM/yyyy')} at ${moment(
+            {`${moment(item?.createdAt).format('DD/MM/yyyy')} at ${moment(
               item.createdAt
             ).format('h:mm A')}`}
           </Text>

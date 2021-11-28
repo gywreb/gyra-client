@@ -10,6 +10,9 @@ import { IoMdBug } from 'react-icons/io';
 import { MdArrowUpward } from 'react-icons/md';
 import { RiTestTubeFill } from 'react-icons/ri';
 
+export const NOTI_FETCH_HZ = 5; // minutes
+export const NOTI_PER_PAGE = 8;
+export const COMMENT_PER_PAGE = 5;
 export const USER_PER_PAGE = 12;
 export const ACTIVITY_PER_PAGE = 10;
 

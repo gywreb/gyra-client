@@ -15,6 +15,8 @@ const COLUMN_ROUTE = '/column';
 const TASK_ROUTE = '/task';
 const USER_ROUTE = '/user';
 const ACTIVITY_ROUTE = '/activity';
+const COMMENT_ROUTE = '/comment';
+const NOTIFICATION_ROUTE = '/notification';
 
 export const AUTH_API = {
   register: `${AUTH_ROUTE}/register`,
@@ -48,6 +50,16 @@ export const USER_API = {
 
 export const ACTIVITY_API = {
   getActivityByProject: projectId => `${ACTIVITY_ROUTE}/${projectId}`,
+};
+
+export const COMMENT_API = {
+  createComment: taskId => `${COMMENT_ROUTE}/create-comment/${taskId}`,
+  getCommentByTask: taskId => `${COMMENT_ROUTE}/${taskId}`,
+};
+
+export const NOTIFICATION_API = {
+  getNotiList: `${NOTIFICATION_ROUTE}`,
+  seenAllNoti: `${NOTIFICATION_ROUTE}/seen-all`,
 };
 
 export const apiClient = axios.create({

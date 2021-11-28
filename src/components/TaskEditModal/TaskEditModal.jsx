@@ -20,6 +20,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  COMMENT_PER_PAGE,
   PRIORITY_SELECT,
   PRIORITY_UI,
   TASK_TYPES_UI,
@@ -31,6 +32,11 @@ import GTextEditor from '../GTextEditor/GTextEditor';
 import GTextInput from '../GTextInput/GTextInput';
 import { format } from 'timeago.js';
 import { editTask } from 'src/store/task/action';
+import { createComment, getCommentList } from 'src/store/comment/action';
+import GSpinner from '../GSpinner/GSpinner';
+import CommentItem from '../CommentItem/CommentItem';
+import GEmptyView from '../GEmptyView/GEmptyView';
+import { FaCommentSlash } from 'react-icons/fa';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -43,7 +49,17 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
   const { currentProject } = useSelector(state => state.project);
   const { columnList } = useSelector(state => state.column);
   const { editTaskLoading } = useSelector(state => state.task);
+  const {
+    currentCommentList,
+    createLoading: addCmtLoading,
+    currentTotalComment,
+    isLoadMoreComment,
+    getLoading,
+  } = useSelector(state => state.comment);
+
+  const [page, setPage] = useState(1);
   const [isUpdateWhole, setIsUpdateWhole] = useState(true);
+
   const formDefaultVal = {
     name: selectedTask?.name || '',
     priority: selectedTask?.priority || '',
@@ -85,6 +101,44 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
     dispatch(editTask(selectedTask?._id, params, toast));
   };
 
+  const onAddComment = data => {
+    setIsUpdateWhole(false);
+    let params = pick(data, 'comment');
+    console.log(`params`, data);
+    dispatch(
+      createComment(
+        selectedTask?._id,
+        { content: params.comment },
+        toast,
+        onResetComment
+      )
+    );
+  };
+
+  const onResetComment = () => {
+    setTimeout(() => {
+      setValue('comment', '');
+    }, 100);
+    clearErrors();
+  };
+
+  const requestCommentData = (page, isLoadMore) => {
+    dispatch(
+      getCommentList(
+        selectedTask?._id,
+        COMMENT_PER_PAGE,
+        page,
+        toast,
+        isLoadMore
+      )
+    );
+  };
+
+  const handleLoadMoreComment = () => {
+    requestCommentData(page + 1, true);
+    setPage(prev => prev + 1);
+  };
+
   const closeModalOnSuccess = () => {
     onClose();
     reset();
@@ -94,6 +148,7 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
 
   useEffect(() => {
     if (selectedTask) {
+      requestCommentData(1, false);
       for (let key in selectedTask) {
         if (key in formDefaultVal) {
           if (key === 'status') setValue(key, selectedTask[key].name);
@@ -104,7 +159,7 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
   }, [selectedTask]);
 
   useEffect(() => {
-    console.log('isDirty :>> ', isDirty);
+    // console.log('isDirty :>> ', isDirty);
   }, [isDirty]);
 
   const isAbleEdit =
@@ -262,16 +317,88 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                         }}
                         value={value}
                         emptyValueText="Add a comment..."
-                        onSave={() => {}}
+                        onSave={handleSubmit(onAddComment)}
+                        isSaveLoading={addCmtLoading && !isUpdateWhole}
+                        onCancel={onResetComment}
                       />
                     )}
                     name="comment"
                     defaultValue=""
                   />
-                  {/* <FormErrorMessage mb={4}>
-                    {errors.description && errors.description.message}
-                  </FormErrorMessage> */}
+                  <FormErrorMessage mb={4}>
+                    {errors.comment && errors.comment.message}
+                  </FormErrorMessage>
                 </FormControl>
+                <Box>
+                  {getLoading ? (
+                    <GSpinner width="100%" height="200px" boxSize={14} />
+                  ) : currentCommentList?.length ? (
+                    <Box
+                      mt={6}
+                      overflowY="scroll"
+                      maxHeight="500px"
+                      css={{
+                        '&:hover': {
+                          '&::-webkit-scrollbar': {
+                            visibility: 'visible',
+                          },
+                          '&::-webkit-scrollbar-track': {
+                            visibility: 'visible',
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                            visibility: 'visible',
+                          },
+                        },
+                        '&::-webkit-scrollbar': {
+                          width: '8px',
+                          visibility: 'hidden',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          width: '10px',
+                          visibility: 'hidden',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          background: 'rgba(135, 137, 140, .5)',
+                          borderRadius: '24px',
+                          visibility: 'hidden',
+                        },
+                      }}
+                    >
+                      {currentCommentList?.map(comment => (
+                        <CommentItem
+                          autoComplete="off"
+                          creator={comment.sender}
+                          value={comment.content}
+                          comment={comment}
+                        />
+                      ))}
+                      {page < currentTotalComment ? (
+                        <Flex
+                          alignItems="center"
+                          justifyContent="center"
+                          width="100%"
+                        >
+                          <Button
+                            size="lg"
+                            colorScheme="orange"
+                            width="90%"
+                            onClick={handleLoadMoreComment}
+                            isLoading={isLoadMoreComment}
+                          >
+                            LOAD MORE
+                          </Button>
+                        </Flex>
+                      ) : null}
+                    </Box>
+                  ) : (
+                    <GEmptyView
+                      height="200px"
+                      width="100%"
+                      icon={FaCommentSlash}
+                      message="No comments here yet"
+                    />
+                  )}
+                </Box>
               </Box>
               <Box w="30%" ml={8} maxW="30%">
                 <FormControl isInvalid={errors.status}>

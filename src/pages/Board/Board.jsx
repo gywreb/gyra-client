@@ -476,9 +476,10 @@ const Board = () => {
                         index={index}
                         key={column._id}
                         isDragDisabled={
-                          currentProject?.manager._id === userInfo?._id
-                            ? false
-                            : true
+                          // currentProject?.manager._id === userInfo?._id
+                          //   ? false
+                          //   : true
+                          true
                         }
                       >
                         {columnProvided => (
