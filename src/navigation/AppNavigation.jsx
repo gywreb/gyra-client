@@ -18,6 +18,7 @@ import Board from 'src/pages/Board/Board';
 import G404Page from 'src/components/G404Page/G404Page';
 import Invitation from 'src/pages/Invitation/Invitation';
 import Activity from 'src/pages/Activity/Activity';
+import Setting from 'src/pages/Setting/Setting';
 
 const AppNavigation = () => {
   const { userInfo, token, getCurrentLoading } = useSelector(
@@ -56,6 +57,7 @@ const AppNavigation = () => {
         <PrivateRoute path={ROUTE_KEY.People} component={<People />} />
         <PrivateRoute path={ROUTE_KEY.Board} component={<Board />} />
         <PrivateRoute path={ROUTE_KEY.Activity} component={<Activity />} />
+        <PrivateRoute path={ROUTE_KEY.Setting} component={<Setting />} />
         <AuthRoute path={ROUTE_KEY.Register} component={<Register />} />
         <AuthRoute path={ROUTE_KEY.Login} component={<Login />} />
         <Route path={ROUTE_KEY.Invitation} component={Invitation} />

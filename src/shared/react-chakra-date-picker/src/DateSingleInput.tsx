@@ -4,6 +4,7 @@ import {
   OnDatesChangeProps,
   START_DATE,
 } from '@datepicker-react/hooks';
+import moment from 'moment';
 import React, { forwardRef, Ref, useEffect, useRef, useState } from 'react';
 import { Input, InputProps } from './components';
 import { StylesProvider } from './context/StylesContext';
@@ -76,10 +77,18 @@ export const DateSingleInput = forwardRef(
       value ? new Date(value) : dateProp
     );
     const [showDatepicker, setShowDatepicker] = useState(showDatepickerProp);
+    const [isSetValue, setIsSetValue] = useState(false);
 
     useEffect(() => {
       onChange(date);
     }, [date, onChange]);
+
+    useEffect(() => {
+      if (value && !isSetValue) {
+        setDate(moment(value).toDate());
+        setIsSetValue(true);
+      }
+    }, [value, isSetValue]);
 
     useEffect(() => {
       onFocusChange(showDatepicker);

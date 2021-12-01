@@ -57,7 +57,9 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
   const toast = useToast();
 
   const onCreateProject = data => {
-    data.members = data.members.map(mem => mem.value);
+    if (data.members?.length) {
+      data.members = data.members.map(mem => mem.value);
+    }
     dispatch(createProject(data, toast, closeModalOnSuccess));
   };
 

@@ -4,10 +4,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
-import {
-  DateRangeInput,
-  DateSingleInput,
-} from 'src/shared/react-chakra-date-picker/src';
+import { DateSingleInput } from 'src/shared/react-chakra-date-picker/src';
 
 const GDatePicker = ({
   title,
@@ -18,6 +15,7 @@ const GDatePicker = ({
   name,
   minDate,
   maxDate,
+  date,
   ...restDatePicker
 }) => {
   return (
@@ -48,6 +46,7 @@ const GDatePicker = ({
         </Flex>
       )}
       <DateSingleInput
+        value={date}
         name={name}
         minBookingDate={
           minDate ? moment(minDate).add(1, 'day').toDate() : moment().toDate()

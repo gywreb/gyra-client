@@ -19,6 +19,12 @@ import { chakra } from '@chakra-ui/system';
 import moment from 'moment';
 import { Button } from '@chakra-ui/button';
 import 'react-quill/dist/quill.snow.css';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+} from '@chakra-ui/breadcrumb';
+import { ROUTE_KEY } from 'src/configs/router';
 
 const Span = chakra('span', {
   baseStyle: {},
@@ -172,6 +178,19 @@ const Activity = () => {
             },
           }}
         >
+          <Breadcrumb mb={2}>
+            <BreadcrumbItem color="gray.500">
+              <BreadcrumbLink href="#">
+                <Link to={ROUTE_KEY.Projects}>Projects</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem color="gray.500">
+              <Text>{currentProject?.name || 'Unknown'}</Text>
+            </BreadcrumbItem>
+            <BreadcrumbItem color="gray.500">
+              <Text>{`${currentProject?.key} Board` || 'Board'}</Text>
+            </BreadcrumbItem>
+          </Breadcrumb>
           <Text fontSize="2xl" fontWeight="600" color="orange.500">
             {sideBarNavItems.find(item => item.id === currentSidebarActive)
               ?.name || 'Board'}

@@ -88,6 +88,7 @@ const GTextInput = ({
               placeholder={placeholder || null}
               resize={'vertical'}
               focusBorderColor="orange.500"
+              _disabled={{ opacity: 1 }}
               {...restInputProps}
             />
           ) : (
@@ -98,6 +99,7 @@ const GTextInput = ({
               focusBorderColor="orange.500"
               placeholder={placeholder || null}
               p={4}
+              _disabled={{ opacity: 1 }}
               {...restInputProps}
             />
           )}
