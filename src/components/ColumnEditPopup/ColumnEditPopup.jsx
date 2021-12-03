@@ -60,12 +60,16 @@ const ColumnEditPopup = ({
   };
 
   useEffect(() => {
+    setColumnValue()
+  }, [column]);
+
+  const setColumnValue  = () => {
     if (column) {
       for (let prop in column) {
         if (prop in formDefaultValue) setValue(prop, column[prop]);
       }
     }
-  }, [column]);
+  }
 
   const onEditColumn = data => {
     let updateParams = {};
@@ -95,7 +99,7 @@ const ColumnEditPopup = ({
         {renderPopoverTrigger ? (
           renderPopoverTrigger()
         ) : (
-          <Button variant="solid" size="sm" width="10px">
+          <Button variant="solid" size="sm" width="10px" onClick={() => setColumnValue()}>
             <Icon as={HiOutlineDotsVertical} color="gray.700" boxSize={6} />
           </Button>
         )}
@@ -151,7 +155,7 @@ const ColumnEditPopup = ({
               variant="ghost"
               onClick={() => {
                 onClose();
-                reset();
+                // reset();
                 clearErrors();
               }}
             >

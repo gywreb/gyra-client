@@ -94,7 +94,7 @@ export const editColumn =
         params: { projectId },
       });
       resetForm();
-      dispatch({ type: EDIT_COLUMN_SUCCESS, payload: { updatedColumn } });
+      dispatch({ type: EDIT_COLUMN_SUCCESS, payload: { updatedColumn, columnId } });
       toast({
         title: 'Updated status successfully',
         position: 'top',

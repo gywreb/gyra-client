@@ -124,9 +124,9 @@ export default function columnReducer(state = initialState, action) {
       return { ...state, editLoading: true };
     }
     case EDIT_COLUMN_SUCCESS: {
-      const { updatedColumn } = action.payload;
+      const { updatedColumn, columnId } = action.payload;
       const oldColumnIndex = state.columnList.findIndex(
-        column => column._id === updatedColumn
+        column => column._id === columnId
       );
       return {
         ...state,
