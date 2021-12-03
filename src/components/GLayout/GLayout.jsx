@@ -10,6 +10,7 @@ const GLayout = ({ children, isHasSideBar }) => {
   return (
     <Box
       width="100vw"
+      height="100vh"
       // bgColor="orange.50"
       alignItems="center"
       overflowY="hidden"
