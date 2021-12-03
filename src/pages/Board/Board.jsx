@@ -45,7 +45,7 @@ import TaskEditModal from 'src/components/TaskEditModal/TaskEditModal';
 import { RiShieldStarFill } from 'react-icons/ri';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/popover';
-import InviteMembersForm from 'src/components/InviteMembersForm/InviteMembersForm';
+import InviteMembersPopup from 'src/components/InviteMembersPopup/InviteMembersPopup';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -370,7 +370,7 @@ const Board = () => {
                         </Tooltip>
                       ))}
                 {userInfo?._id === currentProject?.manager._id ? (
-                  <InviteMembersForm
+                  <InviteMembersPopup
                     isOpen={inviteMembersOpen}
                     onOpen={() => setInviteMembersOpen(true)}
                     onClose={() => setInviteMembersOpen(false)}
@@ -490,6 +490,7 @@ const Board = () => {
                             getTaskLoading={getTaskLoading}
                             taskListByProject={taskListByProject}
                             userInfo={userInfo}
+                            currentProject={currentProject}
                             renderTaskComponent={(
                               taskProvided,
                               task,

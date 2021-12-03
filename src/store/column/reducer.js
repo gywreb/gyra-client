@@ -2,6 +2,9 @@ import {
   CREATE_COLUMN_ERROR,
   CREATE_COLUMN_REQUEST,
   CREATE_COLUMN_SUCCESS,
+  EDIT_COLUMN_ERROR,
+  EDIT_COLUMN_REQUEST,
+  EDIT_COLUMN_SUCCESS,
   GET_COLUMN_ERROR,
   GET_COLUMN_REQUEST,
   GET_COLUMN_SUCCESS,
@@ -15,6 +18,7 @@ const initialState = {
   oldColumnList: [],
   postLoading: false,
   getLoading: false,
+  editLoading: false,
   error: null,
 };
 
@@ -115,6 +119,27 @@ export default function columnReducer(state = initialState, action) {
         columnList: [...state.oldColumnList],
         oldColumnList: [],
       };
+    }
+    case EDIT_COLUMN_REQUEST: {
+      return { ...state, editLoading: true };
+    }
+    case EDIT_COLUMN_SUCCESS: {
+      const { updatedColumn } = action.payload;
+      const oldColumnIndex = state.columnList.findIndex(
+        column => column._id === updatedColumn
+      );
+      return {
+        ...state,
+        editLoading: false,
+        columnList: [
+          ...state.columnList.slice(0, oldColumnIndex),
+          { ...updatedColumn },
+          ...state.columnList.slice(oldColumnIndex + 1),
+        ],
+      };
+    }
+    case EDIT_COLUMN_ERROR: {
+      return { ...state, error: action.payload.error, editLoading: false };
     }
     default:
       return state;

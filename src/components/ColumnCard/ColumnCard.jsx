@@ -1,11 +1,13 @@
-import { Box, Text } from '@chakra-ui/layout';
-import React from 'react';
+import { Box, Flex, Text } from '@chakra-ui/layout';
+import React, { useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { BaseStyles } from 'src/configs/styles';
+import ColumnEditPopup from '../ColumnEditPopup/ColumnEditPopup';
 import GSpinner from '../GSpinner/GSpinner';
 import TaskCard from '../TaskCard/TaskCard';
 
 const ColumnCard = ({
+  currentProject,
   columnProvided,
   column,
   getTaskLoading,
@@ -21,6 +23,8 @@ const ColumnCard = ({
         ...columnProvided.dragHandleProps,
       }
     : {};
+  const [columnEditOpen, setColumnEditOpen] = useState(false);
+  const isManager = currentProject?.manager?._id === userInfo?._id;
   return (
     <Box
       minWidth={BaseStyles.columnWidth}
@@ -34,9 +38,20 @@ const ColumnCard = ({
       transition="all 0.4s"
       {...draggableProps}
     >
-      <Text color="gray.600" ml={2}>
-        {column?.name || ''}
-      </Text>
+      <Flex alignItems="center" justifyContent="space-between">
+        <Text color="gray.600" ml={2}>
+          {column?.name || ''}
+        </Text>
+        {isManager ? (
+          <ColumnEditPopup
+            isOpen={columnEditOpen}
+            onOpen={() => setColumnEditOpen(true)}
+            onClose={() => setColumnEditOpen(false)}
+            column={column}
+          />
+        ) : null}
+      </Flex>
+
       <Droppable droppableId={column?._id} direction="vertical" type="card">
         {dropColumnProvided => (
           <Box

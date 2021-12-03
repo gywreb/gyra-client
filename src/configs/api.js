@@ -33,6 +33,7 @@ export const PROJECT_API = {
 export const COLUMN_API = {
   createColumn: `${COLUMN_ROUTE}/create-column`,
   getColumnByProject: projectId => `${COLUMN_ROUTE}/${projectId}`,
+  editColumn: columnId => `${COLUMN_ROUTE}/edit-column/${columnId}`,
 };
 
 export const TASK_API = {
