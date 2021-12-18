@@ -63,6 +63,9 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const toast = useToast();
 
+  const [subtasks, setSubtasks] = useState([]);
+  const [currentSubTask, setCurrentSubTask] = useState('');
+
   const onCreateTask = data => {
     let params = { ...data };
     for (let key in data) {
@@ -72,7 +75,7 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
     }
     params.task_key = `${currentProject?.key}-${currentLastTaskKey + 1}`;
     params.project = currentProject?._id;
-    console.log(data);
+    params.subtasks = [...subtasks];
     dispatch(createTask(params, toast, closeModalOnSuccess));
   };
 
@@ -82,10 +85,25 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
     clearErrors();
   };
 
+  const handleAddSubTask = () => {
+    if (currentSubTask.trim().length) {
+      setSubtasks(prev => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          content: currentSubTask.trim(),
+        },
+      ]);
+      setCurrentSubTask('');
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={() => {
+        setCurrentSubTask('');
+        setSubtasks([]);
         onClose();
         reset();
         clearErrors();
@@ -150,6 +168,36 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
                 {errors.name && errors.name.message}
               </FormErrorMessage>
             </FormControl>
+            <GTextInput
+              autoComplete="off"
+              title="Requirements"
+              isRequired
+              placeholder="Type here to add requirements"
+              onChange={text => {
+                setCurrentSubTask(text.target.value);
+              }}
+              value={currentSubTask}
+              renderRightButton={() => (
+                <Button
+                  colorScheme="orange"
+                  ml={3}
+                  onClick={handleAddSubTask}
+                  isLoading={false}
+                >
+                  Add
+                </Button>
+              )}
+            />
+            <Box ml={2}>
+              {subtasks.map(st => (
+                <Flex alignItems="center" mt={2} mb={2}>
+                  <Text fontWeight="bold" mr={2}>
+                    {st.id}.
+                  </Text>
+                  <Text>{st.content}</Text>
+                </Flex>
+              ))}
+            </Box>
             <FormControl isInvalid={errors.description}>
               <Controller
                 control={control}
@@ -349,6 +397,7 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
                     noCapOntext
                     onClick={item => onChange(item)}
                     tooltip={'Status is the column this task will belong to'}
+                    disabled
                   />
                 )}
                 name="status"
@@ -379,6 +428,8 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
           <Button
             variant="ghost"
             onClick={() => {
+              setCurrentSubTask('');
+              setSubtasks([]);
               onClose();
               reset();
               clearErrors();

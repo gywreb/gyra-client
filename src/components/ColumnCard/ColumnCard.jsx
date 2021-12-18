@@ -40,7 +40,7 @@ const ColumnCard = ({
     >
       <Flex alignItems="center" justifyContent="space-between">
         <Text color="gray.600" ml={2}>
-          {column?.name || ''}
+          {column?.name?.toUpperCase() || ''}
         </Text>
         {isManager ? (
           <ColumnEditPopup
@@ -90,7 +90,9 @@ const ColumnCard = ({
             ) : currentFilterMember ? (
               column.tasks
                 .map(taskId =>
-                  taskListByProject.find(task => task._id === taskId)
+                  taskListByProject.find(
+                    task => task._id === taskId && task.isWorking
+                  )
                 )
                 .filter(task => task.assignee._id === currentFilterMember._id)
                 .map((task, index) => (
@@ -113,7 +115,9 @@ const ColumnCard = ({
             ) : (
               column.tasks
                 .map(taskId =>
-                  taskListByProject.find(task => task._id === taskId)
+                  taskListByProject.find(
+                    task => task?._id === taskId && task.isWorking
+                  )
                 )
                 .map((task, index) => (
                   <Draggable
@@ -121,8 +125,8 @@ const ColumnCard = ({
                     index={index}
                     key={task?.task_key}
                     isDragDisabled={
-                      userInfo?._id === task.reporter._id ||
-                      userInfo?._id === task.assignee._id
+                      userInfo?._id === task?.reporter?._id ||
+                      userInfo?._id === task?.assignee?._id
                         ? false
                         : true
                     }
@@ -131,8 +135,8 @@ const ColumnCard = ({
                       ? taskProvided => {
                           if (
                             !(
-                              userInfo?._id === task.reporter._id ||
-                              userInfo?._id === task.assignee._id
+                              userInfo?._id === task?.reporter?._id ||
+                              userInfo?._id === task?.assignee?._id
                             )
                           ) {
                             taskProvided.draggableProps.isAuth = false;

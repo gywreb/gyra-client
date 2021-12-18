@@ -24,6 +24,7 @@ const GTextInput = ({
   leftImg,
   leftImgIsAvatar,
   titleStyle,
+  renderRightButton,
   ...restInputProps
 }) => {
   return (
@@ -79,6 +80,33 @@ const GTextInput = ({
           <Text fontSize="md" color="gray.600">
             {readOnlyContent}
           </Text>
+        </Flex>
+      ) : renderRightButton ? (
+        <Flex>
+          <InputGroup maxWidth="100%">
+            {isMultiline ? (
+              <Textarea
+                name={name}
+                placeholder={placeholder || null}
+                resize={'vertical'}
+                focusBorderColor="orange.500"
+                _disabled={{ opacity: 1 }}
+                {...restInputProps}
+              />
+            ) : (
+              <Input
+                name={name}
+                variant="filled"
+                type="text"
+                focusBorderColor="orange.500"
+                placeholder={placeholder || null}
+                p={4}
+                _disabled={{ opacity: 1 }}
+                {...restInputProps}
+              />
+            )}
+          </InputGroup>
+          {renderRightButton()}
         </Flex>
       ) : (
         <InputGroup maxWidth="100%">

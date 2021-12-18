@@ -38,7 +38,11 @@ import GScrollBar from 'src/components/GScrollBar/GScrollBar';
 import { useDisclosure } from '@chakra-ui/hooks';
 import TaskCreateModal from 'src/components/TaskCreateModal/TaskCreateModal';
 import { getTaskListByProject, moveTaskInBoard } from 'src/store/task/action';
-import { PRIORITY_UI, TASK_TYPES_UI } from 'src/configs/constants';
+import {
+  FIXED_COUMN_TYPE,
+  PRIORITY_UI,
+  TASK_TYPES_UI,
+} from 'src/configs/constants';
 import TaskCard from 'src/components/TaskCard/TaskCard';
 import ColumnCard from 'src/components/ColumnCard/ColumnCard';
 import TaskEditModal from 'src/components/TaskEditModal/TaskEditModal';
@@ -46,6 +50,7 @@ import { RiShieldStarFill } from 'react-icons/ri';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/popover';
 import InviteMembersPopup from 'src/components/InviteMembersPopup/InviteMembersPopup';
+import FixedColumnCard from 'src/components/FixedColumnCard/FixedColumnCard';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -58,6 +63,24 @@ const AddColumnAnchor = chakra('div', {
     width: BaseStyles.columnWidth,
   },
 });
+
+const fixedColumns = [
+  {
+    name: 'done'.toUpperCase(),
+    bgColor: 'blue.300',
+    key: FIXED_COUMN_TYPE.DONE,
+  },
+  {
+    name: 'resolve'.toUpperCase(),
+    bgColor: 'green.300',
+    key: FIXED_COUMN_TYPE.RESOLVE,
+  },
+  {
+    name: 'close'.toUpperCase(),
+    bgColor: 'red.300',
+    key: FIXED_COUMN_TYPE.CLOSE,
+  },
+];
 
 const Board = () => {
   const match = useRouteMatch();
@@ -120,7 +143,19 @@ const Board = () => {
       project: currentProject?._id,
       name: data.name,
     };
-    dispatch(createColumn(params, toast, reset));
+    if (
+      data.name.toLowerCase() === 'done' ||
+      data.name.toLowerCase() === 'resolve' ||
+      data.name.toLowerCase() === 'close'
+    )
+      return toast({
+        title: `Name: ${data.name} is already used!`,
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    else dispatch(createColumn(params, toast, reset));
   };
 
   const handleMove = (result, provided) => {
@@ -497,10 +532,11 @@ const Board = () => {
                               index
                             ) => (
                               <TaskCard
+                                editable={false}
                                 index={index}
                                 taskProvided={taskProvided}
                                 task={task}
-                                key={task._id}
+                                key={task?._id}
                                 onClick={() => {
                                   setSelectedTask(task);
                                   setTaskEditOpen(true);
@@ -513,12 +549,14 @@ const Board = () => {
                       </Draggable>
                     ))}
                     {boardProvided.placeholder}
+
                     {!(
                       currentProject?.manager?._id === userInfo?._id
                     ) ? null : addingColumn ? (
                       <Form
                         p={4}
                         borderRadius={6}
+                        mr={4}
                         bgColor="gray.100"
                         minWidth={BaseStyles.columnWidth}
                       >
@@ -557,6 +595,7 @@ const Board = () => {
                         minWidth={BaseStyles.columnWidth}
                         minHeight={BaseStyles.addColumnHeight}
                         p={2}
+                        mr={4}
                         bgColor="gray.100"
                         alignItems="center"
                         justifyContent="center"
@@ -572,12 +611,72 @@ const Board = () => {
                         </Text>
                       </Flex>
                     )}
-                    <AddColumnAnchor ref={addColumnAnchorRef} />
+                    {/* <AddColumnAnchor ref={addColumnAnchorRef} /> */}
                   </Flex>
                 )}
               </Droppable>
             </DragDropContext>
           )}
+          <Flex
+            mt={8}
+            pb={6}
+            overflowX="auto"
+            minHeight="65%"
+            alignItems="flex-start"
+            css={{
+              '&:hover': {
+                '&::-webkit-scrollbar': {
+                  visibility: 'visible',
+                },
+                '&::-webkit-scrollbar-track': {
+                  visibility: 'visible',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  visibility: 'visible',
+                },
+              },
+              '&::-webkit-scrollbar': {
+                width: '8px',
+                visibility: 'hidden',
+              },
+              '&::-webkit-scrollbar-track': {
+                width: '10px',
+                visibility: 'hidden',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'rgba(135, 137, 140, .2)',
+                borderRadius: '24px',
+                visibility: 'hidden',
+              },
+            }}
+          >
+            {fixedColumns.map(column => (
+              <FixedColumnCard
+                column={{
+                  ...column,
+                  tasks: taskListByProject?.filter(task => task[column.key]),
+                }}
+                currentFilterMember={currentFilterMember}
+                getTaskLoading={getTaskLoading}
+                taskListByProject={taskListByProject}
+                renderTaskComponent={(taskProvided, task, index) => (
+                  <TaskCard
+                    index={index}
+                    taskProvided={taskProvided}
+                    task={task}
+                    key={task?._id}
+                    onClick={() => {
+                      setSelectedTask(task);
+                      setTaskEditOpen(true);
+                    }}
+                  />
+                )}
+                key={column.key}
+                bgColor={column.bgColor}
+                titleStyle={{ color: 'white', fontWeight: '600' }}
+              />
+            ))}
+          </Flex>
         </Box>
       )}
       <TaskCreateModal
@@ -593,6 +692,11 @@ const Board = () => {
         }}
         key={'task-edit-modal'}
         selectedTask={selectedTask}
+        unableEdit={
+          selectedTask?.isDone ||
+          selectedTask?.isResolve ||
+          selectedTask?.isClose
+        }
         userInfo={userInfo}
       />
     </GLayout>

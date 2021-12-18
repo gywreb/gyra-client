@@ -31,12 +31,12 @@ import GFormMenu from '../GFormMenu/GFormMenu';
 import GTextEditor from '../GTextEditor/GTextEditor';
 import GTextInput from '../GTextInput/GTextInput';
 import { format } from 'timeago.js';
-import { editTask } from 'src/store/task/action';
+import { doneTask, editTask, toggleSubTaskStatus } from 'src/store/task/action';
 import { createComment, getCommentList } from 'src/store/comment/action';
 import GSpinner from '../GSpinner/GSpinner';
 import CommentItem from '../CommentItem/CommentItem';
 import GEmptyView from '../GEmptyView/GEmptyView';
-import { FaCommentSlash } from 'react-icons/fa';
+import { FaCheckCircle, FaCommentSlash } from 'react-icons/fa';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -44,11 +44,21 @@ const Form = chakra('form', {
   },
 });
 
-const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
+const TaskEditModal = ({
+  isOpen,
+  onClose,
+  selectedTask,
+  unableEdit = false,
+}) => {
   const { userInfo } = useSelector(state => state.auth);
   const { currentProject } = useSelector(state => state.project);
   const { columnList } = useSelector(state => state.column);
-  const { editTaskLoading } = useSelector(state => state.task);
+  const {
+    editTaskLoading,
+    toggleSubTaskLoading,
+    doneTaskLoading,
+    taskListByProject,
+  } = useSelector(state => state.task);
   const {
     currentCommentList,
     createLoading: addCmtLoading,
@@ -59,6 +69,8 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
 
   const [page, setPage] = useState(1);
   const [isUpdateWhole, setIsUpdateWhole] = useState(true);
+  const [currentTask, setCurrentTask] = useState(selectedTask);
+  const [currentToggleSubTask, setCurrentToggleSubTask] = useState(null);
 
   const formDefaultVal = {
     name: selectedTask?.name || '',
@@ -148,6 +160,7 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
 
   useEffect(() => {
     if (selectedTask) {
+      setCurrentTask(selectedTask);
       requestCommentData(1, false);
       for (let key in selectedTask) {
         if (key in formDefaultVal) {
@@ -159,12 +172,18 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
   }, [selectedTask]);
 
   useEffect(() => {
+    const task = taskListByProject?.find(t => t._id === selectedTask?._id);
+    setCurrentTask({ ...task });
+  }, [taskListByProject]);
+
+  useEffect(() => {
     // console.log('isDirty :>> ', isDirty);
   }, [isDirty]);
 
   const isAbleEdit =
-    userInfo?._id === selectedTask?.reporter?._id ||
-    userInfo?._id === selectedTask?.assignee?._id;
+    !unableEdit &&
+    (userInfo?._id === selectedTask?.reporter?._id ||
+      userInfo?._id === selectedTask?.assignee?._id);
 
   return (
     <Modal
@@ -275,6 +294,62 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                     {errors.name && errors.name.message}
                   </FormErrorMessage>
                 </FormControl>
+                <Text fontWeight="600" mb={2} ml={1}>
+                  Requirements:
+                </Text>
+                <Box ml={2} mb={4}>
+                  {currentTask?.subtasks?.map(st => (
+                    <Flex
+                      alignItems="center"
+                      mt={2}
+                      mb={2}
+                      justifyContent="space-between"
+                    >
+                      <Flex alignItems="center">
+                        <Text fontWeight="bold" mr={2}>
+                          {st.id}.
+                        </Text>
+                        <Text>{st.content}</Text>
+                        {st.isDone ? (
+                          <Icon
+                            ml={2}
+                            as={FaCheckCircle}
+                            color="green.400"
+                            boxSize={6}
+                          />
+                        ) : null}
+                      </Flex>
+                      {selectedTask?.assignee?._id === userInfo?._id &&
+                      isAbleEdit ? (
+                        selectedTask?.status._id ===
+                        currentProject?.columns[0] ? null : (
+                          <Flex alignItems="center">
+                            <Button
+                              colorScheme={st.isDone ? 'yellow' : 'green'}
+                              mr={3}
+                              isLoading={
+                                currentToggleSubTask === st.id &&
+                                toggleSubTaskLoading
+                              }
+                              onClick={() => {
+                                setCurrentToggleSubTask(st.id);
+                                dispatch(
+                                  toggleSubTaskStatus(
+                                    selectedTask?._id,
+                                    st.id,
+                                    toast
+                                  )
+                                );
+                              }}
+                            >
+                              {st.isDone ? 'Undo' : 'Done'}
+                            </Button>
+                          </Flex>
+                        )
+                      ) : null}
+                    </Flex>
+                  ))}
+                </Box>
                 <FormControl isInvalid={errors.description}>
                   <Controller
                     control={control}
@@ -401,6 +476,40 @@ const TaskEditModal = ({ isOpen, onClose, selectedTask }) => {
                 </Box>
               </Box>
               <Box w="30%" ml={8} maxW="30%">
+                <Flex alignItems="center" mb={3}>
+                  {selectedTask?.assignee?._id === userInfo?._id &&
+                  currentTask?.subtasks?.filter(st => st.isDone).length ===
+                    currentTask?.subtasks?.length &&
+                  !currentTask?.isDone ? (
+                    <Button
+                      colorScheme="blue"
+                      mr={3}
+                      isLoading={doneTaskLoading}
+                      onClick={() =>
+                        dispatch(
+                          doneTask(
+                            selectedTask?._id,
+                            toast,
+                            closeModalOnSuccess
+                          )
+                        )
+                      }
+                    >
+                      DONE
+                    </Button>
+                  ) : null}
+                  {selectedTask?.reporter?._id === userInfo?._id &&
+                  currentTask?.isDone ? (
+                    <>
+                      <Button colorScheme="green" mr={3} onClick={() => {}}>
+                        RESOLVE
+                      </Button>
+                      <Button colorScheme="red" mr={3} onClick={() => {}}>
+                        CLOSE
+                      </Button>
+                    </>
+                  ) : null}
+                </Flex>
                 <FormControl isInvalid={errors.status}>
                   <Controller
                     control={control}

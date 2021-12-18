@@ -41,6 +41,8 @@ export const TASK_API = {
   getTaskListByProject: projectId => `${TASK_ROUTE}/${projectId}`,
   moveTaskInBoard: taskId => `${TASK_ROUTE}/move-task/${taskId}`,
   editTask: taskId => `${TASK_ROUTE}/edit-task/${taskId}`,
+  toggleTask: `${TASK_ROUTE}/toggle-subtask`,
+  doneTask: taskId => `${TASK_ROUTE}/done-task/${taskId}`,
 };
 
 export const USER_API = {

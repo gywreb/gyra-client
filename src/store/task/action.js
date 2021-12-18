@@ -4,6 +4,7 @@ import { formatErrorMessage } from 'src/utils/formatErrorMessage';
 import {
   RESTART_COLUMN_MOVE_TASK_ERROR,
   SET_COLUMN_AFTER_CREATE_TASK,
+  SET_COLUMN_AFTER_DONE_TASK,
   SET_COLUMN_AFTER_MOVE_TASK,
 } from '../column/action';
 
@@ -26,6 +27,18 @@ export const MOVE_TASK_ERROR = '@TASK/MOVE_TASK_ERROR';
 export const EDIT_TASK_REQUEST = '@TASK/EDIT_TASK_REQUEST';
 export const EDIT_TASK_SUCCESS = '@TASK/EDIT_TASK_SUCCESS';
 export const EDIT_TASK_ERROR = '@TASK/EDIT_TASK_ERROR';
+
+// -TOGGLE SUBTASKS STATUS
+export const TOGGLE_SUBTASK_STATUS_REQUEST =
+  '@TASK/TOGGLE_SUBTASK_STATUS_REQUEST';
+export const TOGGLE_SUBTASK_STATUS_SUCCESS =
+  '@TASK/TOGGLE_SUBTASK_STATUS_SUCCESS';
+export const TOGGLE_SUBTASK_STATUS_ERROR = '@TASK/TOGGLE_SUBTASK_STATUS_ERROR';
+
+// -DONE TASK
+export const DONE_TASK_REQUEST = '@TASK/DONE_TASK_REQUEST';
+export const DONE_TASK_SUCCESS = '@TASK/DONE_TASK_SUCCESS';
+export const DONE_TASK_ERROR = '@TASK/DONE_TASK_ERROR';
 
 export const getTaskListByProject = projectId => async dispatch => {
   dispatch({ type: GET_TASK_REQUEST });
@@ -199,6 +212,86 @@ export const editTask =
       console.log(`error`, error);
       toast({
         title: capitalize(errorMessage || 'failed to move task'),
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+export const toggleSubTaskStatus =
+  (taskId, subTaskId, toast) => async (dispatch, getState) => {
+    const { taskListByProject } = getState().task;
+    const taskInStore = taskListByProject.find(task => task._id === taskId);
+    if (!taskInStore) return;
+    dispatch({ type: TOGGLE_SUBTASK_STATUS_REQUEST });
+    try {
+      const {
+        data: {
+          data: { updatedTask },
+        },
+      } = await apiClient.put(TASK_API.toggleTask, { taskId, subTaskId });
+
+      dispatch({
+        type: TOGGLE_SUBTASK_STATUS_SUCCESS,
+        payload: { updatedTask },
+      });
+    } catch (error) {
+      let errorMessage = null;
+      dispatch({ type: TOGGLE_SUBTASK_STATUS_ERROR, payload: { error } });
+      if (error?.response?.data) {
+        const { message } = error?.response?.data;
+        if (typeof message === 'string') errorMessage = message;
+        else if (typeof message === 'object')
+          errorMessage = formatErrorMessage(message);
+      }
+      console.log(`error`, error);
+      toast({
+        title: capitalize(errorMessage || 'failed action'),
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+export const doneTask =
+  (taskId, toast, closeModalOnSuccess) => async (dispatch, getState) => {
+    const { taskListByProject } = getState().task;
+    const taskInStore = taskListByProject.find(task => task._id === taskId);
+    if (!taskInStore) return;
+    dispatch({ type: DONE_TASK_REQUEST });
+    try {
+      const {
+        data: {
+          data: { updatedTask, updatedColumn },
+        },
+      } = await apiClient.put(TASK_API.doneTask(taskId));
+      dispatch({
+        type: DONE_TASK_SUCCESS,
+        payload: { updatedTask },
+      });
+      dispatch({
+        type: SET_COLUMN_AFTER_DONE_TASK,
+        payload: {
+          taskId: updatedTask._id,
+          updatedColumn,
+        },
+      });
+      closeModalOnSuccess();
+    } catch (error) {
+      let errorMessage = null;
+      dispatch({ type: DONE_TASK_ERROR, payload: { error } });
+      if (error?.response?.data) {
+        const { message } = error?.response?.data;
+        if (typeof message === 'string') errorMessage = message;
+        else if (typeof message === 'object')
+          errorMessage = formatErrorMessage(message);
+      }
+      toast({
+        title: capitalize(errorMessage || 'failed action'),
         position: 'top',
         status: 'error',
         duration: 3000,

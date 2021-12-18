@@ -23,7 +23,7 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
       mb={2}
       p={2}
       _hover={
-        taskProvided.draggableProps.isAuth ? { bgColor: 'orange.50' } : {}
+        taskProvided?.draggableProps?.isAuth ? { bgColor: 'orange.50' } : {}
       }
       _active={{ bgColor: 'orange.100' }}
       transition="all 0.2s"
@@ -61,6 +61,25 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
               mr={1}
             />
           </Flex>
+          <Flex
+            alignItems="center"
+            fontSize="sm"
+            fontWeight="500"
+            mt={2}
+            fontStyle="italic"
+            color={
+              task?.subtasks?.filter(st => st.isDone).length ===
+              task?.subtasks?.length
+                ? 'green.500'
+                : 'red.500'
+            }
+          >
+            <Text mr={1}>Requirements:</Text>
+            <Text>
+              {task?.subtasks?.filter(st => st.isDone).length}/
+              {task?.subtasks?.length}
+            </Text>
+          </Flex>
         </Box>
         <Flex
           flexDir="column"
@@ -70,7 +89,7 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
           <Avatar
             cursor="pointer"
             boxSize={10}
-            src={`https://avatars.dicebear.com/api/gridy/${task.assignee?.username}.svg`}
+            src={`https://avatars.dicebear.com/api/gridy/${task?.assignee?.username}.svg`}
             bgColor={'gray.400'}
             padding="2px"
             borderColor="white"
@@ -78,13 +97,12 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
             onClick={() => {}}
             alignSelf="flex-end"
           />
-          {taskProvided.draggableProps.isAuth ? null : (
-            <Flex>
-              <Text fontSize="xs" fontStyle="italic" color="gray.500">
-                Read-only
-              </Text>
-            </Flex>
-          )}
+
+          <Flex>
+            <Text fontSize="xs" fontStyle="italic" color="gray.500">
+              Read-only
+            </Text>
+          </Flex>
         </Flex>
       </Flex>
     </Box>

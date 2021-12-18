@@ -22,6 +22,7 @@ export const SET_COLUMN_AFTER_CREATE_TASK =
 export const SET_COLUMN_AFTER_MOVE_TASK = '@COLUMN/SET_COLUMN_AFTER_MOVE_TASK';
 export const RESTART_COLUMN_MOVE_TASK_ERROR =
   '@COLUMN/RESTART_COLUMN_MOVE_TASK_ERROR';
+export const SET_COLUMN_AFTER_DONE_TASK = '@COLUMN/SET_COLUMN_AFTER_DONE_TASK';
 
 export const getColumnList = projectId => async dispatch => {
   dispatch({ type: GET_COLUMN_REQUEST });
@@ -94,7 +95,10 @@ export const editColumn =
         params: { projectId },
       });
       resetForm();
-      dispatch({ type: EDIT_COLUMN_SUCCESS, payload: { updatedColumn, columnId } });
+      dispatch({
+        type: EDIT_COLUMN_SUCCESS,
+        payload: { updatedColumn, columnId },
+      });
       toast({
         title: 'Updated status successfully',
         position: 'top',

@@ -10,6 +10,7 @@ import {
   GET_COLUMN_SUCCESS,
   RESTART_COLUMN_MOVE_TASK_ERROR,
   SET_COLUMN_AFTER_CREATE_TASK,
+  SET_COLUMN_AFTER_DONE_TASK,
   SET_COLUMN_AFTER_MOVE_TASK,
 } from './action';
 
@@ -70,6 +71,24 @@ export default function columnReducer(state = initialState, action) {
           columnList: [
             ...state.columnList.slice(0, currentColumnIndex),
             action.payload.newColumn,
+            ...state.columnList.slice(currentColumnIndex + 1),
+          ],
+        };
+      } else return state;
+    }
+    case SET_COLUMN_AFTER_DONE_TASK: {
+      const currentColumn = state.columnList.find(
+        column => column._id === action.payload.updatedColumn._id
+      );
+      const currentColumnIndex = state.columnList.findIndex(
+        column => column._id === action.payload.updatedColumn._id
+      );
+      if (currentColumn && currentColumnIndex !== -1) {
+        return {
+          ...state,
+          columnList: [
+            ...state.columnList.slice(0, currentColumnIndex),
+            action.payload.updatedColumn,
             ...state.columnList.slice(currentColumnIndex + 1),
           ],
         };

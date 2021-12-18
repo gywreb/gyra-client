@@ -2,6 +2,9 @@ import {
   CREATE_TASK_ERROR,
   CREATE_TASK_REQUEST,
   CREATE_TASK_SUCCESS,
+  DONE_TASK_ERROR,
+  DONE_TASK_REQUEST,
+  DONE_TASK_SUCCESS,
   EDIT_TASK_ERROR,
   EDIT_TASK_REQUEST,
   EDIT_TASK_SUCCESS,
@@ -11,6 +14,9 @@ import {
   MOVE_TASK_ERROR,
   MOVE_TASK_REQUEST,
   MOVE_TASK_SUCCESS,
+  TOGGLE_SUBTASK_STATUS_ERROR,
+  TOGGLE_SUBTASK_STATUS_REQUEST,
+  TOGGLE_SUBTASK_STATUS_SUCCESS,
 } from './action';
 
 const initialState = {
@@ -20,6 +26,8 @@ const initialState = {
   postLoading: false,
   moveTaskLoading: false,
   editTaskLoading: false,
+  toggleSubTaskLoading: false,
+  doneTaskLoading: false,
   error: null,
 };
 
@@ -103,6 +111,50 @@ export default function taskReducer(state = initialState, action) {
     }
     case EDIT_TASK_ERROR: {
       return { ...state, editTaskLoading: false };
+    }
+    case TOGGLE_SUBTASK_STATUS_REQUEST: {
+      return { ...state, toggleSubTaskLoading: true };
+    }
+    case TOGGLE_SUBTASK_STATUS_SUCCESS: {
+      const updatedTaskIndex = state.taskListByProject.findIndex(
+        task => task._id === action.payload.updatedTask._id
+      );
+      if (updatedTaskIndex === -1)
+        return { ...state, toggleSubTaskLoading: false };
+      return {
+        ...state,
+        toggleSubTaskLoading: false,
+        taskListByProject: [
+          ...state.taskListByProject.slice(0, updatedTaskIndex),
+          action.payload.updatedTask,
+          ...state.taskListByProject.slice(updatedTaskIndex + 1),
+        ],
+      };
+    }
+    case TOGGLE_SUBTASK_STATUS_ERROR: {
+      return { ...state, toggleSubTaskLoading: false };
+    }
+    case DONE_TASK_REQUEST: {
+      return { ...state, doneTaskLoading: true };
+    }
+    case DONE_TASK_SUCCESS: {
+      const updatedTaskIndex = state.taskListByProject.findIndex(
+        task => task._id === action.payload.updatedTask._id
+      );
+      if (updatedTaskIndex === -1) return { ...state, doneTaskLoading: false };
+      console.log(`updatedTaskIndex`, updatedTaskIndex);
+      return {
+        ...state,
+        doneTaskLoading: false,
+        taskListByProject: [
+          ...state.taskListByProject.slice(0, updatedTaskIndex),
+          action.payload.updatedTask,
+          ...state.taskListByProject.slice(updatedTaskIndex + 1),
+        ],
+      };
+    }
+    case DONE_TASK_ERROR: {
+      return { ...state, doneTaskLoading: false };
     }
     default:
       return state;

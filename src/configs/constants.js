@@ -64,3 +64,9 @@ export const PRIORITY_SELECT = PRIORITY.map(priority => ({
 export const MEMBER_ROLES = ['leader', 'developer', 'tester', 'product'];
 
 export const ATTACHMENT_TYPE = ['IMAGE', 'FILE'];
+
+export const FIXED_COUMN_TYPE = {
+  DONE: 'isDone',
+  RESOLVE: 'isResolve',
+  CLOSE: 'isClose',
+};
