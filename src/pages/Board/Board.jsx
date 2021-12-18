@@ -145,7 +145,7 @@ const Board = () => {
   };
 
   return (
-    <GLayout isHasSideBar>
+    <GLayout isHasSideBar boxProps={{ overflowY: 'hidden' }}>
       {isGetProjectDetail ? (
         <GSpinner />
       ) : (

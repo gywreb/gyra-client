@@ -5,7 +5,7 @@ import GScrollBar from '../GScrollBar/GScrollBar';
 import HeaderBar from '../HeaderBar/HeaderBar';
 import ProjectSidebar from '../ProjectSidebar/ProjectSidebar';
 
-const GLayout = ({ children, isHasSideBar }) => {
+const GLayout = ({ children, isHasSideBar, boxProps }) => {
   const { height, width } = useWindowDimensions();
   return (
     <Box
@@ -14,6 +14,7 @@ const GLayout = ({ children, isHasSideBar }) => {
       // bgColor="orange.50"
       alignItems="center"
       overflowY="scroll"
+      {...boxProps}
     >
       <HeaderBar />
       {/* <Flex height={70} /> */}
