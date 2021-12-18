@@ -13,7 +13,7 @@ const GLayout = ({ children, isHasSideBar }) => {
       height="100vh"
       // bgColor="orange.50"
       alignItems="center"
-      overflowY="hidden"
+      overflowY="scroll"
     >
       <HeaderBar />
       {/* <Flex height={70} /> */}
