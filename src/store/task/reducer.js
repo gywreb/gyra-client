@@ -14,6 +14,12 @@ import {
   MOVE_TASK_ERROR,
   MOVE_TASK_REQUEST,
   MOVE_TASK_SUCCESS,
+  REOPEN_TASK_ERROR,
+  REOPEN_TASK_REQUEST,
+  REOPEN_TASK_SUCCESS,
+  RESOLVE_TASK_ERROR,
+  RESOLVE_TASK_REQUEST,
+  RESOLVE_TASK_SUCCESS,
   TOGGLE_SUBTASK_STATUS_ERROR,
   TOGGLE_SUBTASK_STATUS_REQUEST,
   TOGGLE_SUBTASK_STATUS_SUCCESS,
@@ -28,6 +34,9 @@ const initialState = {
   editTaskLoading: false,
   toggleSubTaskLoading: false,
   doneTaskLoading: false,
+  resolveTaskLoading: false,
+  closeTaskLoading: false,
+  reopenTaskLoading: false,
   error: null,
 };
 
@@ -142,7 +151,7 @@ export default function taskReducer(state = initialState, action) {
         task => task._id === action.payload.updatedTask._id
       );
       if (updatedTaskIndex === -1) return { ...state, doneTaskLoading: false };
-      console.log(`updatedTaskIndex`, updatedTaskIndex);
+
       return {
         ...state,
         doneTaskLoading: false,
@@ -155,6 +164,52 @@ export default function taskReducer(state = initialState, action) {
     }
     case DONE_TASK_ERROR: {
       return { ...state, doneTaskLoading: false };
+    }
+    case RESOLVE_TASK_REQUEST: {
+      return { ...state, resolveTaskLoading: true };
+    }
+    case RESOLVE_TASK_SUCCESS: {
+      const updatedTaskIndex = state.taskListByProject.findIndex(
+        task => task._id === action.payload.updatedTask._id
+      );
+      if (updatedTaskIndex === -1)
+        return { ...state, resolveTaskLoading: false };
+
+      return {
+        ...state,
+        resolveTaskLoading: false,
+        taskListByProject: [
+          ...state.taskListByProject.slice(0, updatedTaskIndex),
+          action.payload.updatedTask,
+          ...state.taskListByProject.slice(updatedTaskIndex + 1),
+        ],
+      };
+    }
+    case RESOLVE_TASK_ERROR: {
+      return { ...state, resolveTaskLoading: false };
+    }
+    case REOPEN_TASK_REQUEST: {
+      return { ...state, reopenTaskLoading: true };
+    }
+    case REOPEN_TASK_SUCCESS: {
+      const updatedTaskIndex = state.taskListByProject.findIndex(
+        task => task._id === action.payload.updatedTask._id
+      );
+      if (updatedTaskIndex === -1)
+        return { ...state, reopenTaskLoading: false };
+
+      return {
+        ...state,
+        reopenTaskLoading: false,
+        taskListByProject: [
+          ...state.taskListByProject.slice(0, updatedTaskIndex),
+          action.payload.updatedTask,
+          ...state.taskListByProject.slice(updatedTaskIndex + 1),
+        ],
+      };
+    }
+    case REOPEN_TASK_ERROR: {
+      return { ...state, reopenTaskLoading: false };
     }
     default:
       return state;

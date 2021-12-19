@@ -17,6 +17,7 @@ const USER_ROUTE = '/user';
 const ACTIVITY_ROUTE = '/activity';
 const COMMENT_ROUTE = '/comment';
 const NOTIFICATION_ROUTE = '/notification';
+const USERSTORY_ROUTE = '/userstory';
 
 export const AUTH_API = {
   register: `${AUTH_ROUTE}/register`,
@@ -43,6 +44,9 @@ export const TASK_API = {
   editTask: taskId => `${TASK_ROUTE}/edit-task/${taskId}`,
   toggleTask: `${TASK_ROUTE}/toggle-subtask`,
   doneTask: taskId => `${TASK_ROUTE}/done-task/${taskId}`,
+  resolveTask: taskId => `${TASK_ROUTE}/resolve-task/${taskId}`,
+  closeTask: taskId => `${TASK_ROUTE}/close-task/${taskId}`,
+  reopenTask: taskId => `${TASK_ROUTE}/reopen-task/${taskId}`,
 };
 
 export const USER_API = {
@@ -63,6 +67,11 @@ export const COMMENT_API = {
 export const NOTIFICATION_API = {
   getNotiList: `${NOTIFICATION_ROUTE}`,
   seenAllNoti: `${NOTIFICATION_ROUTE}/seen-all`,
+};
+
+export const USERSTORY_API = {
+  getUserStories: projectId => `${USERSTORY_ROUTE}/${projectId}`,
+  createUserStory: `${USERSTORY_ROUTE}/create-user-story`,
 };
 
 export const apiClient = axios.create({

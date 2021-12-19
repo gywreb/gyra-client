@@ -12,4 +12,5 @@ export const ROUTE_KEY = {
   Team: '/team',
   Invitation: '/invitation',
   NotFound: '/404',
+  UserStory: '/userstory/:projectId',
 };

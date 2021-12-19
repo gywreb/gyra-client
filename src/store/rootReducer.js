@@ -8,6 +8,7 @@ import notificationReducer from './notification/reducer';
 import projectReducer from './project/reducer';
 import taskReducer from './task/reducer';
 import userReducer from './user/reducer';
+import { userStoryReducer } from './userstory/reducer';
 
 const reducer = combineReducers({
   auth: authReducer,
@@ -19,6 +20,7 @@ const reducer = combineReducers({
   activity: activityReducer,
   comment: commentReducer,
   notification: notificationReducer,
+  userstory: userStoryReducer,
 });
 
 export default reducer;

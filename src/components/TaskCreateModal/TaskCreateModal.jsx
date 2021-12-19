@@ -17,6 +17,7 @@ import { useToast } from '@chakra-ui/toast';
 import { capitalize } from 'lodash';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { BsFillBookmarkFill } from 'react-icons/bs';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   PRIORITY_SELECT,
@@ -40,6 +41,7 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
   const { userInfo } = useSelector(state => state.auth);
   const { columnList } = useSelector(state => state.column);
   const { postLoading, currentLastTaskKey } = useSelector(state => state.task);
+  const { currentUserStoryList } = useSelector(state => state.userstory);
   const {
     register,
     handleSubmit,
@@ -58,6 +60,7 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
     status: '',
     type: '',
     description: '',
+    userStory: '',
   });
 
   const dispatch = useDispatch();
@@ -69,7 +72,7 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
   const onCreateTask = data => {
     let params = { ...data };
     for (let key in data) {
-      if (key === 'assignee' || key === 'status') {
+      if (key === 'assignee' || key === 'status' || key === 'userStory') {
         params[key] = data[key]._id;
       }
     }
@@ -140,6 +143,79 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
               }`}
               tooltip={'Identifier of your task for future easy managment'}
             />
+            <FormControl isInvalid={errors.userStory}>
+              <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value, name } }) => (
+                  <GFormMenu
+                    isRequired
+                    title="User Story"
+                    placeholder="Choose the user story for this task"
+                    value={value}
+                    data={currentUserStoryList}
+                    itemTextProp="content"
+                    renderLeftItemAddon={item => (
+                      <Flex alignItems="center" mr={4}>
+                        <Flex
+                          alignItems="center"
+                          justifyContent="center"
+                          w={6}
+                          h={6}
+                          bgColor="green.300"
+                          borderRadius={4}
+                          mr={1}
+                        >
+                          <Icon
+                            as={BsFillBookmarkFill}
+                            color="white"
+                            boxSize={4}
+                          />
+                        </Flex>
+                        <Text color="gray.500" fontWeight="500">
+                          {item.key}
+                        </Text>
+                      </Flex>
+                    )}
+                    renderValue={selectedItem => (
+                      <Flex alignItems="center" textAlign="left">
+                        <Flex alignItems="center" mr={4}>
+                          <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            w={6}
+                            h={6}
+                            bgColor="green.300"
+                            borderRadius={4}
+                            mr={1}
+                          >
+                            <Icon
+                              as={BsFillBookmarkFill}
+                              color="white"
+                              boxSize={4}
+                            />
+                          </Flex>
+                          <Text color="gray.500" fontWeight="500">
+                            {selectedItem.key}
+                          </Text>
+                        </Flex>
+                        <Text>{selectedItem.content}</Text>
+                      </Flex>
+                    )}
+                    onClick={item => onChange(item)}
+                  />
+                )}
+                name="userStory"
+                rules={{
+                  required: {
+                    value: true,
+                    message: 'User Story is required',
+                  },
+                }}
+              />
+              <FormErrorMessage mb={4}>
+                {errors.userStory && errors.userStory.message}
+              </FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={errors.name}>
               <Controller
                 control={control}

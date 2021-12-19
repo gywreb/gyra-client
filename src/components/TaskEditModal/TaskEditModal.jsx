@@ -31,12 +31,19 @@ import GFormMenu from '../GFormMenu/GFormMenu';
 import GTextEditor from '../GTextEditor/GTextEditor';
 import GTextInput from '../GTextInput/GTextInput';
 import { format } from 'timeago.js';
-import { doneTask, editTask, toggleSubTaskStatus } from 'src/store/task/action';
+import {
+  doneTask,
+  editTask,
+  reopenTask,
+  resolveTask,
+  toggleSubTaskStatus,
+} from 'src/store/task/action';
 import { createComment, getCommentList } from 'src/store/comment/action';
 import GSpinner from '../GSpinner/GSpinner';
 import CommentItem from '../CommentItem/CommentItem';
 import GEmptyView from '../GEmptyView/GEmptyView';
 import { FaCheckCircle, FaCommentSlash } from 'react-icons/fa';
+import { BsFillBookmarkFill } from 'react-icons/bs';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -57,6 +64,8 @@ const TaskEditModal = ({
     editTaskLoading,
     toggleSubTaskLoading,
     doneTaskLoading,
+    resolveTaskLoading,
+    reopenTaskLoading,
     taskListByProject,
   } = useSelector(state => state.task);
   const {
@@ -80,6 +89,7 @@ const TaskEditModal = ({
     status: selectedTask?.status?.name || '',
     type: selectedTask?.type || '',
     description: selectedTask?.description || '',
+    userStory: selectedTask?.userStory || '',
     comment: '',
   };
   const {
@@ -102,7 +112,7 @@ const TaskEditModal = ({
       }
     }
     params.managerId = currentProject?.manager?._id;
-    params = omit(params, ['comment']);
+    params = omit(params, ['comment', 'userStory']);
     dispatch(editTask(selectedTask?._id, params, toast));
   };
 
@@ -294,6 +304,82 @@ const TaskEditModal = ({
                     {errors.name && errors.name.message}
                   </FormErrorMessage>
                 </FormControl>
+                <FormControl isInvalid={errors.userStory}>
+                  <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value, name } }) => (
+                      <GFormMenu
+                        title="User Story"
+                        noIcon
+                        variant="ghost"
+                        pl={1}
+                        placeholder="Choose the user story for this task"
+                        value={value}
+                        data={[]}
+                        itemTextProp="content"
+                        renderLeftItemAddon={item => (
+                          <Flex alignItems="center" mr={4}>
+                            <Flex
+                              alignItems="center"
+                              justifyContent="center"
+                              w={6}
+                              h={6}
+                              bgColor="green.300"
+                              borderRadius={4}
+                              mr={1}
+                            >
+                              <Icon
+                                as={BsFillBookmarkFill}
+                                color="white"
+                                boxSize={4}
+                              />
+                            </Flex>
+                            <Text color="gray.500" fontWeight="500">
+                              {item.key}
+                            </Text>
+                          </Flex>
+                        )}
+                        renderValue={selectedItem => (
+                          <Flex alignItems="center" textAlign="left">
+                            <Flex alignItems="center" mr={4}>
+                              <Flex
+                                alignItems="center"
+                                justifyContent="center"
+                                w={6}
+                                h={6}
+                                bgColor="green.300"
+                                borderRadius={4}
+                                mr={1}
+                              >
+                                <Icon
+                                  as={BsFillBookmarkFill}
+                                  color="white"
+                                  boxSize={4}
+                                />
+                              </Flex>
+                              <Text color="gray.500" fontWeight="500">
+                                {selectedItem.key}
+                              </Text>
+                            </Flex>
+                            <Text>{selectedItem.content}</Text>
+                          </Flex>
+                        )}
+                        // onClick={item => onChange(item)}
+                        editable={false}
+                      />
+                    )}
+                    name="userStory"
+                    rules={{
+                      required: {
+                        value: true,
+                        message: 'User Story is required',
+                      },
+                    }}
+                  />
+                  <FormErrorMessage mb={4}>
+                    {errors.userStory && errors.userStory.message}
+                  </FormErrorMessage>
+                </FormControl>
                 <Text fontWeight="600" mb={2} ml={1}>
                   Requirements:
                 </Text>
@@ -478,9 +564,50 @@ const TaskEditModal = ({
               <Box w="30%" ml={8} maxW="30%">
                 <Flex alignItems="center" mb={3}>
                   {selectedTask?.assignee?._id === userInfo?._id &&
+                  currentTask?.isDone ? (
+                    <Button
+                      colorScheme="yellow"
+                      mr={3}
+                      isLoading={reopenTaskLoading}
+                      onClick={() =>
+                        dispatch(
+                          reopenTask(
+                            selectedTask?._id,
+                            columnList[0]?._id,
+                            toast,
+                            closeModalOnSuccess
+                          )
+                        )
+                      }
+                    >
+                      RE-OPEN
+                    </Button>
+                  ) : selectedTask?.reporter?._id === userInfo?._id &&
+                    (currentTask?.isClose || currentTask?.isResolve) ? (
+                    <Button
+                      colorScheme="yellow"
+                      mr={3}
+                      isLoading={reopenTaskLoading}
+                      onClick={() =>
+                        dispatch(
+                          reopenTask(
+                            selectedTask?._id,
+                            columnList[0]?._id,
+                            toast,
+                            closeModalOnSuccess
+                          )
+                        )
+                      }
+                    >
+                      RE-OPEN
+                    </Button>
+                  ) : null}
+                  {selectedTask?.assignee?._id === userInfo?._id &&
                   currentTask?.subtasks?.filter(st => st.isDone).length ===
                     currentTask?.subtasks?.length &&
-                  !currentTask?.isDone ? (
+                  selectedTask?.status._id ==
+                    columnList[columnList.length - 1]._id &&
+                  currentTask?.isWorking ? (
                     <Button
                       colorScheme="blue"
                       mr={3}
@@ -499,15 +626,32 @@ const TaskEditModal = ({
                     </Button>
                   ) : null}
                   {selectedTask?.reporter?._id === userInfo?._id &&
-                  currentTask?.isDone ? (
-                    <>
-                      <Button colorScheme="green" mr={3} onClick={() => {}}>
-                        RESOLVE
-                      </Button>
-                      <Button colorScheme="red" mr={3} onClick={() => {}}>
-                        CLOSE
-                      </Button>
-                    </>
+                  currentTask?.isDone &&
+                  !currentTask?.isClose &&
+                  !currentTask?.isResolve ? (
+                    <Button
+                      colorScheme="green"
+                      mr={3}
+                      isLoading={resolveTaskLoading}
+                      onClick={() =>
+                        dispatch(
+                          resolveTask(
+                            selectedTask?._id,
+                            toast,
+                            closeModalOnSuccess
+                          )
+                        )
+                      }
+                    >
+                      RESOLVE
+                    </Button>
+                  ) : null}
+                  {selectedTask?.reporter?._id === userInfo?._id &&
+                  !currentTask?.isClose &&
+                  !currentTask?.isResolve ? (
+                    <Button colorScheme="red" mr={3} onClick={() => {}}>
+                      CLOSE
+                    </Button>
                   ) : null}
                 </Flex>
                 <FormControl isInvalid={errors.status}>

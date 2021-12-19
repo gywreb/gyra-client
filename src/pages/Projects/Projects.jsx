@@ -96,8 +96,9 @@ const Projects = () => {
           Projects
         </Text>
         <Flex alignItems="center" mt={4} justifyContent="space-between">
-          <InputGroup width="500">
+          <InputGroup mr={4}>
             <Input
+              placeholder="Search project name..."
               variant="outline"
               id="search"
               type="text"

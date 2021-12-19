@@ -2,6 +2,7 @@ import { HiOutlineViewBoards } from 'react-icons/hi';
 import { FiSettings } from 'react-icons/fi';
 import { ROUTE_KEY } from './router';
 import { AiOutlineSchedule } from 'react-icons/ai';
+import { RiBookmark3Fill } from 'react-icons/ri';
 
 export const NAVIGATION_KEY = {
   PROJECT: '/projects',
@@ -12,6 +13,7 @@ export const NAVIGATION_KEY = {
   SETTING: '/setting',
   ACTIVITY: '/activity',
   INVITATION: '/invitation',
+  USERSTORY: '/userstory',
 };
 
 export const APP_NAVIGATIONS = [
@@ -38,6 +40,12 @@ export const APP_NAVIGATIONS = [
 ];
 
 export const sideBarNavItems = [
+  {
+    id: NAVIGATION_KEY.USERSTORY,
+    path: ROUTE_KEY.UserStory,
+    name: 'User Stories',
+    icon: RiBookmark3Fill,
+  },
   {
     id: NAVIGATION_KEY.ACTIVITY,
     path: ROUTE_KEY.Activity,

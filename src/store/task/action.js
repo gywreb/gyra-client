@@ -28,17 +28,32 @@ export const EDIT_TASK_REQUEST = '@TASK/EDIT_TASK_REQUEST';
 export const EDIT_TASK_SUCCESS = '@TASK/EDIT_TASK_SUCCESS';
 export const EDIT_TASK_ERROR = '@TASK/EDIT_TASK_ERROR';
 
-// -TOGGLE SUBTASKS STATUS
+// - TOGGLE SUBTASKS STATUS
 export const TOGGLE_SUBTASK_STATUS_REQUEST =
   '@TASK/TOGGLE_SUBTASK_STATUS_REQUEST';
 export const TOGGLE_SUBTASK_STATUS_SUCCESS =
   '@TASK/TOGGLE_SUBTASK_STATUS_SUCCESS';
 export const TOGGLE_SUBTASK_STATUS_ERROR = '@TASK/TOGGLE_SUBTASK_STATUS_ERROR';
 
-// -DONE TASK
+// - DONE TASK
 export const DONE_TASK_REQUEST = '@TASK/DONE_TASK_REQUEST';
 export const DONE_TASK_SUCCESS = '@TASK/DONE_TASK_SUCCESS';
 export const DONE_TASK_ERROR = '@TASK/DONE_TASK_ERROR';
+
+// - RESOLVE TASK
+export const RESOLVE_TASK_REQUEST = '@TASK/RESOLVE_TASK_REQUEST';
+export const RESOLVE_TASK_SUCCESS = '@TASK/RESOLVE_TASK_SUCCESS';
+export const RESOLVE_TASK_ERROR = '@TASK/RESOLVE_TASK_ERROR';
+
+// - CLOSE TASK
+export const CLOSE_TASK_REQUEST = '@TASK/CLOSE_TASK_REQUEST';
+export const CLOSE_TASK_SUCCESS = '@TASK/CLOSE_TASK_SUCCESS';
+export const CLOSE_TASK_ERROR = '@TASK/CLOSE_TASK_ERROR';
+
+// - REOPEN TASK
+export const REOPEN_TASK_REQUEST = '@TASK/REOPEN_TASK_REQUEST';
+export const REOPEN_TASK_SUCCESS = '@TASK/REOPEN_TASK_SUCCESS';
+export const REOPEN_TASK_ERROR = '@TASK/REOPEN_TASK_ERROR';
 
 export const getTaskListByProject = projectId => async dispatch => {
   dispatch({ type: GET_TASK_REQUEST });
@@ -284,6 +299,86 @@ export const doneTask =
     } catch (error) {
       let errorMessage = null;
       dispatch({ type: DONE_TASK_ERROR, payload: { error } });
+      if (error?.response?.data) {
+        const { message } = error?.response?.data;
+        if (typeof message === 'string') errorMessage = message;
+        else if (typeof message === 'object')
+          errorMessage = formatErrorMessage(message);
+      }
+      toast({
+        title: capitalize(errorMessage || 'failed action'),
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+export const resolveTask =
+  (taskId, toast, closeModalOnSuccess) => async (dispatch, getState) => {
+    const { taskListByProject } = getState().task;
+    const taskInStore = taskListByProject.find(task => task._id === taskId);
+    if (!taskInStore) return;
+    dispatch({ type: RESOLVE_TASK_REQUEST });
+    try {
+      const {
+        data: {
+          data: { updatedTask },
+        },
+      } = await apiClient.put(TASK_API.resolveTask(taskId));
+      dispatch({
+        type: RESOLVE_TASK_SUCCESS,
+        payload: { updatedTask },
+      });
+      closeModalOnSuccess();
+    } catch (error) {
+      let errorMessage = null;
+      dispatch({ type: RESOLVE_TASK_ERROR, payload: { error } });
+      if (error?.response?.data) {
+        const { message } = error?.response?.data;
+        if (typeof message === 'string') errorMessage = message;
+        else if (typeof message === 'object')
+          errorMessage = formatErrorMessage(message);
+      }
+      toast({
+        title: capitalize(errorMessage || 'failed action'),
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+export const reopenTask =
+  (taskId, reopenColumn, toast, closeModalOnSuccess) =>
+  async (dispatch, getState) => {
+    const { taskListByProject } = getState().task;
+    const taskInStore = taskListByProject.find(task => task._id === taskId);
+    if (!taskInStore) return;
+    dispatch({ type: REOPEN_TASK_REQUEST });
+    try {
+      const {
+        data: {
+          data: { updatedTask, updatedColumn },
+        },
+      } = await apiClient.put(TASK_API.reopenTask(taskId), { reopenColumn });
+      dispatch({
+        type: REOPEN_TASK_SUCCESS,
+        payload: { updatedTask },
+      });
+      dispatch({
+        type: SET_COLUMN_AFTER_DONE_TASK,
+        payload: {
+          taskId: updatedTask._id,
+          updatedColumn,
+        },
+      });
+      closeModalOnSuccess();
+    } catch (error) {
+      let errorMessage = null;
+      dispatch({ type: REOPEN_TASK_ERROR, payload: { error } });
       if (error?.response?.data) {
         const { message } = error?.response?.data;
         if (typeof message === 'string') errorMessage = message;

@@ -70,3 +70,10 @@ export const FIXED_COUMN_TYPE = {
   RESOLVE: 'isResolve',
   CLOSE: 'isClose',
 };
+
+export const TASK_FIXED_STATUS_UI = {
+  isDone: { color: '#4299E1', label: 'DONE' },
+  isWorking: { color: '#2D3748', label: 'ONGOING' },
+  isResolve: { color: '#48BB78', label: 'RESOLVED' },
+  isClose: { color: '#F56565', label: 'CLOSED' },
+};

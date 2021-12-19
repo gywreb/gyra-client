@@ -2,10 +2,12 @@ import { Avatar } from '@chakra-ui/avatar';
 import Icon from '@chakra-ui/icon';
 import { Box, Flex, Text } from '@chakra-ui/layout';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { PRIORITY_UI, TASK_TYPES_UI } from 'src/configs/constants';
 import { BaseStyles } from 'src/configs/styles';
 
 const TaskCard = ({ taskProvided, task, onClick }) => {
+  const { userInfo } = useSelector(state => state.auth);
   const draggableProps = taskProvided
     ? {
         ref: taskProvided.innerRef,
@@ -22,9 +24,7 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
       borderRadius={4}
       mb={2}
       p={2}
-      _hover={
-        taskProvided?.draggableProps?.isAuth ? { bgColor: 'orange.50' } : {}
-      }
+      _hover={{ bgColor: 'orange.50' }}
       _active={{ bgColor: 'orange.100' }}
       transition="all 0.2s"
       onClick={onClick}
@@ -68,7 +68,7 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
             mt={2}
             fontStyle="italic"
             color={
-              task?.subtasks?.filter(st => st.isDone).length ===
+              task?.subtasks?.filter(st => st?.isDone).length ===
               task?.subtasks?.length
                 ? 'green.500'
                 : 'red.500'
@@ -76,7 +76,7 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
           >
             <Text mr={1}>Requirements:</Text>
             <Text>
-              {task?.subtasks?.filter(st => st.isDone).length}/
+              {task?.subtasks?.filter(st => st?.isDone).length}/
               {task?.subtasks?.length}
             </Text>
           </Flex>
@@ -98,11 +98,17 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
             alignSelf="flex-end"
           />
 
-          <Flex>
-            <Text fontSize="xs" fontStyle="italic" color="gray.500">
-              Read-only
-            </Text>
-          </Flex>
+          {task?.isDone ||
+          task?.isResolve ||
+          task?.isClose ||
+          !userInfo?._id === task?.reporter?._id ||
+          !userInfo?._id === task?.assignee?._id ? (
+            <Flex>
+              <Text fontSize="xs" fontStyle="italic" color="gray.500">
+                Read-only
+              </Text>
+            </Flex>
+          ) : null}
         </Flex>
       </Flex>
     </Box>

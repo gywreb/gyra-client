@@ -51,14 +51,9 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/popover';
 import InviteMembersPopup from 'src/components/InviteMembersPopup/InviteMembersPopup';
 import FixedColumnCard from 'src/components/FixedColumnCard/FixedColumnCard';
+import { getUserStoryList } from 'src/store/userstory/action';
 
 const Form = chakra('form', {
-  baseStyle: {
-    width: BaseStyles.columnWidth,
-  },
-});
-
-const AddColumnAnchor = chakra('div', {
   baseStyle: {
     width: BaseStyles.columnWidth,
   },
@@ -86,12 +81,14 @@ const Board = () => {
   const match = useRouteMatch();
   const history = useHistory();
   const dispatch = useDispatch();
-  const addColumnAnchorRef = useRef();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [taskEditOpen, setTaskEditOpen] = useState(false);
   const [inviteMembersOpen, setInviteMembersOpen] = useState(false);
   const { isGetProjectDetail, currentProject } = useSelector(
     state => state.project
+  );
+  const { currentUserStoryList, getLoading: getUserStoryLoading } = useSelector(
+    state => state.userstory
   );
   const { currentSidebarActive } = useSelector(state => state.navigation);
   const { userInfo } = useSelector(state => state.auth);
@@ -119,6 +116,7 @@ const Board = () => {
         dispatch(getProjectDetail(projectId, history, toast)),
         dispatch(getColumnList(projectId)),
         dispatch(getTaskListByProject(projectId)),
+        dispatch(getUserStoryList(projectId, toast)),
       ]);
     } catch (error) {
       console.log(error);
@@ -181,7 +179,7 @@ const Board = () => {
 
   return (
     <GLayout isHasSideBar boxProps={{ overflowY: 'hidden' }}>
-      {isGetProjectDetail ? (
+      {isGetProjectDetail || getUserStoryLoading ? (
         <GSpinner />
       ) : (
         <Box
@@ -275,7 +273,12 @@ const Board = () => {
                     ]
                       .slice(0, 10)
                       .map((item, index) => (
-                        <Tooltip label={item.username} placement="top">
+                        <Tooltip
+                          label={item.username}
+                          placement="top"
+                          color="orange.700"
+                          bgColor="orange.50"
+                        >
                           <Box
                             position="relative"
                             transition="all .3s"
@@ -344,7 +347,12 @@ const Board = () => {
                     ]
                       .slice(0, 10)
                       .map((item, index) => (
-                        <Tooltip label={item.username} placement="top">
+                        <Tooltip
+                          label={item.username}
+                          placement="top"
+                          color="orange.700"
+                          bgColor="orange.50"
+                        >
                           <Box
                             position="relative"
                             transition="all .3s"
@@ -450,15 +458,33 @@ const Board = () => {
                 </Button> */}
               </Flex>
             </Flex>
-            <Button
-              variant="solid"
-              colorScheme="orange"
-              rightIcon={<Icon as={FaPlus} color="white" />}
-              onClick={() => onOpen()}
-              disabled={columnList?.length ? false : true}
-            >
-              Create Task
-            </Button>
+            {currentUserStoryList?.length && columnList?.length ? (
+              <Button
+                variant="solid"
+                colorScheme="orange"
+                rightIcon={<Icon as={FaPlus} color="white" />}
+                onClick={() => onOpen()}
+              >
+                Create Task
+              </Button>
+            ) : (
+              <Tooltip
+                label="Add User Stories and Columns first then you can create task"
+                fontSize="md"
+                placement="top-start"
+                color="orange.700"
+                bgColor="orange.50"
+              >
+                <Button
+                  variant="solid"
+                  colorScheme="orange"
+                  rightIcon={<Icon as={FaPlus} color="white" />}
+                  opacity={0.5}
+                >
+                  Create Task
+                </Button>
+              </Tooltip>
+            )}
           </Flex>
           {getLoading ? (
             <GSpinner width="100%" height={600} />
