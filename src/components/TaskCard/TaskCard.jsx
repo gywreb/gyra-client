@@ -80,6 +80,19 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
               {task?.subtasks?.length}
             </Text>
           </Flex>
+          {task?.subtasks?.filter(st => st?.isRejected).length ? (
+            <Flex
+              alignItems="center"
+              fontSize="sm"
+              fontWeight="500"
+              mt={1}
+              fontStyle="italic"
+              color={'red.500'}
+            >
+              <Text mr={1}>Rejected:</Text>
+              <Text>{task?.subtasks?.filter(st => st?.isRejected).length}</Text>
+            </Flex>
+          ) : null}
         </Box>
         <Flex
           flexDir="column"

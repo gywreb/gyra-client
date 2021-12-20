@@ -140,7 +140,7 @@ const Activity = () => {
   };
 
   return (
-    <GLayout isHasSideBar>
+    <GLayout isHasSideBar boxProps={{ overflowY: 'hidden' }}>
       {getActivityLoading ? (
         <GSpinner />
       ) : (

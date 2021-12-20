@@ -35,6 +35,13 @@ export const TOGGLE_SUBTASK_STATUS_SUCCESS =
   '@TASK/TOGGLE_SUBTASK_STATUS_SUCCESS';
 export const TOGGLE_SUBTASK_STATUS_ERROR = '@TASK/TOGGLE_SUBTASK_STATUS_ERROR';
 
+// - TOGGLE REJECTT SUBTASKS STATUS
+export const TOGGLE_REJECT_SUBTASK_REQUEST =
+  '@TASK/TOGGLE_REJECT_SUBTASK_REQUEST';
+export const TOGGLE_REJECT_SUBTASK_SUCCESS =
+  '@TASK/TOGGLE_REJECT_SUBTASK_SUCCESS';
+export const TOGGLE_REJECT_SUBTASK_ERROR = '@TASK/TOGGLE_REJECT_SUBTASK_ERROR';
+
 // - DONE TASK
 export const DONE_TASK_REQUEST = '@TASK/DONE_TASK_REQUEST';
 export const DONE_TASK_SUCCESS = '@TASK/DONE_TASK_SUCCESS';
@@ -54,6 +61,10 @@ export const CLOSE_TASK_ERROR = '@TASK/CLOSE_TASK_ERROR';
 export const REOPEN_TASK_REQUEST = '@TASK/REOPEN_TASK_REQUEST';
 export const REOPEN_TASK_SUCCESS = '@TASK/REOPEN_TASK_SUCCESS';
 export const REOPEN_TASK_ERROR = '@TASK/REOPEN_TASK_ERROR';
+
+export const ADD_SUBTASK_REQUEST = '@TASK/ADD_SUBTASK_REQUEST';
+export const ADD_SUBTASK_SUCCESS = '@TASK/ADD_SUBTASK_SUCCESS';
+export const ADD_SUBTASK_ERROR = '@TASK/ADD_SUBTASK_ERROR';
 
 export const getTaskListByProject = projectId => async dispatch => {
   dispatch({ type: GET_TASK_REQUEST });
@@ -246,7 +257,7 @@ export const toggleSubTaskStatus =
         data: {
           data: { updatedTask },
         },
-      } = await apiClient.put(TASK_API.toggleTask, { taskId, subTaskId });
+      } = await apiClient.put(TASK_API.toggleSubTask, { taskId, subTaskId });
 
       dispatch({
         type: TOGGLE_SUBTASK_STATUS_SUCCESS,
@@ -255,6 +266,86 @@ export const toggleSubTaskStatus =
     } catch (error) {
       let errorMessage = null;
       dispatch({ type: TOGGLE_SUBTASK_STATUS_ERROR, payload: { error } });
+      if (error?.response?.data) {
+        const { message } = error?.response?.data;
+        if (typeof message === 'string') errorMessage = message;
+        else if (typeof message === 'object')
+          errorMessage = formatErrorMessage(message);
+      }
+      console.log(`error`, error);
+      toast({
+        title: capitalize(errorMessage || 'failed action'),
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+export const addSubTask =
+  (taskId, content, toast, closeInputOnSuccess) =>
+  async (dispatch, getState) => {
+    const { taskListByProject } = getState().task;
+    const taskInStore = taskListByProject.find(task => task._id === taskId);
+    if (!taskInStore) return;
+    dispatch({ type: ADD_SUBTASK_REQUEST });
+    try {
+      const {
+        data: {
+          data: { updatedTask },
+        },
+      } = await apiClient.post(TASK_API.addSubTask(taskId), {
+        content,
+      });
+      dispatch({
+        type: ADD_SUBTASK_SUCCESS,
+        payload: { updatedTask },
+      });
+      if (closeInputOnSuccess) closeInputOnSuccess();
+    } catch (error) {
+      let errorMessage = null;
+      dispatch({ type: ADD_SUBTASK_ERROR, payload: { error } });
+      if (error?.response?.data) {
+        const { message } = error?.response?.data;
+        if (typeof message === 'string') errorMessage = message;
+        else if (typeof message === 'object')
+          errorMessage = formatErrorMessage(message);
+      }
+      console.log(`error`, error);
+      toast({
+        title: capitalize(errorMessage || 'failed action'),
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+export const toggleRejectSubTask =
+  (taskId, subTaskId, toast) => async (dispatch, getState) => {
+    const { taskListByProject } = getState().task;
+    const taskInStore = taskListByProject.find(task => task._id === taskId);
+    if (!taskInStore) return;
+    dispatch({ type: TOGGLE_REJECT_SUBTASK_REQUEST });
+    try {
+      const {
+        data: {
+          data: { updatedTask },
+        },
+      } = await apiClient.put(TASK_API.toggleRejectSubTask, {
+        taskId,
+        subTaskId,
+      });
+
+      dispatch({
+        type: TOGGLE_REJECT_SUBTASK_SUCCESS,
+        payload: { updatedTask },
+      });
+    } catch (error) {
+      let errorMessage = null;
+      dispatch({ type: TOGGLE_REJECT_SUBTASK_ERROR, payload: { error } });
       if (error?.response?.data) {
         const { message } = error?.response?.data;
         if (typeof message === 'string') errorMessage = message;

@@ -32,18 +32,22 @@ import GTextEditor from '../GTextEditor/GTextEditor';
 import GTextInput from '../GTextInput/GTextInput';
 import { format } from 'timeago.js';
 import {
+  addSubTask,
   doneTask,
   editTask,
   reopenTask,
   resolveTask,
+  toggleRejectSubTask,
   toggleSubTaskStatus,
 } from 'src/store/task/action';
 import { createComment, getCommentList } from 'src/store/comment/action';
 import GSpinner from '../GSpinner/GSpinner';
 import CommentItem from '../CommentItem/CommentItem';
 import GEmptyView from '../GEmptyView/GEmptyView';
-import { FaCheckCircle, FaCommentSlash } from 'react-icons/fa';
+import { FaCheckCircle, FaCommentSlash, FaPlus } from 'react-icons/fa';
 import { BsFillBookmarkFill } from 'react-icons/bs';
+import { RiCloseCircleFill } from 'react-icons/ri';
+import { Input } from '@chakra-ui/react';
 
 const Form = chakra('form', {
   baseStyle: {
@@ -66,6 +70,7 @@ const TaskEditModal = ({
     doneTaskLoading,
     resolveTaskLoading,
     reopenTaskLoading,
+    addSubTaskLoading,
     taskListByProject,
   } = useSelector(state => state.task);
   const {
@@ -80,6 +85,8 @@ const TaskEditModal = ({
   const [isUpdateWhole, setIsUpdateWhole] = useState(true);
   const [currentTask, setCurrentTask] = useState(selectedTask);
   const [currentToggleSubTask, setCurrentToggleSubTask] = useState(null);
+  const [isOpenAddSubTask, setIsOpenAddSubTask] = useState(false);
+  const [currentAddSubTask, setCurrentAddSubTask] = useState('');
 
   const formDefaultVal = {
     name: selectedTask?.name || '',
@@ -190,6 +197,24 @@ const TaskEditModal = ({
     // console.log('isDirty :>> ', isDirty);
   }, [isDirty]);
 
+  const handleAddSubTask = () => {
+    if (currentAddSubTask.trim().length) {
+      dispatch(
+        addSubTask(
+          selectedTask?._id,
+          currentAddSubTask.trim(),
+          toast,
+          onResetAddSubTask
+        )
+      );
+    }
+  };
+
+  const onResetAddSubTask = () => {
+    setCurrentAddSubTask('');
+    setIsOpenAddSubTask(false);
+  };
+
   const isAbleEdit =
     !unableEdit &&
     (userInfo?._id === selectedTask?.reporter?._id ||
@@ -199,12 +224,13 @@ const TaskEditModal = ({
     <Modal
       isOpen={isOpen}
       onClose={() => {
+        onResetAddSubTask();
         onClose();
         reset();
         clearErrors();
       }}
       size="5xl"
-      isCentered
+      // isCentered
     >
       <ModalOverlay />
       <ModalContent>
@@ -275,7 +301,6 @@ const TaskEditModal = ({
                     {errors.type && errors.type.message}
                   </FormErrorMessage>
                 </FormControl>
-
                 <FormControl isInvalid={errors.name} mb={4}>
                   <Controller
                     control={control}
@@ -403,11 +428,18 @@ const TaskEditModal = ({
                             color="green.400"
                             boxSize={6}
                           />
+                        ) : st.isRejected ? (
+                          <Icon
+                            ml={2}
+                            as={RiCloseCircleFill}
+                            color="red.400"
+                            boxSize={7}
+                          />
                         ) : null}
                       </Flex>
                       {selectedTask?.assignee?._id === userInfo?._id &&
                       isAbleEdit ? (
-                        selectedTask?.status._id ===
+                        currentTask?.status._id ===
                         currentProject?.columns[0] ? null : (
                           <Flex alignItems="center">
                             <Button
@@ -433,9 +465,82 @@ const TaskEditModal = ({
                           </Flex>
                         )
                       ) : null}
+
+                      {currentTask?.reporter?._id === userInfo?._id &&
+                      currentTask?.isDone ? (
+                        <Flex alignItems="center">
+                          <Button
+                            colorScheme={st.isRejected ? 'green' : 'red'}
+                            mr={3}
+                            isLoading={
+                              currentToggleSubTask === st.id &&
+                              toggleSubTaskLoading
+                            }
+                            onClick={() => {
+                              setCurrentToggleSubTask(st.id);
+                              dispatch(
+                                toggleRejectSubTask(
+                                  selectedTask?._id,
+                                  st.id,
+                                  toast
+                                )
+                              );
+                            }}
+                          >
+                            {st.isRejected ? 'Resolve' : 'Reject'}
+                          </Button>
+                        </Flex>
+                      ) : null}
                     </Flex>
                   ))}
                 </Box>
+                {selectedTask?.reporter?._id === userInfo?._id &&
+                currentTask?.status?._id === currentProject?.columns[0] ? (
+                  isOpenAddSubTask ? (
+                    <Box>
+                      <Input
+                        variant="filled"
+                        type="text"
+                        focusBorderColor="orange.500"
+                        placeholder={'Add more requirements...'}
+                        p={4}
+                        onChange={text => {
+                          setCurrentAddSubTask(text.target.value);
+                        }}
+                        value={currentAddSubTask}
+                      />
+                      <Flex mt={3} mb={4}>
+                        <Button
+                          colorScheme="orange"
+                          mr={2}
+                          isLoading={addSubTaskLoading}
+                          onClick={handleAddSubTask}
+                        >
+                          Add
+                        </Button>
+                        <Button
+                          variant="solid"
+                          onClick={() => {
+                            setIsOpenAddSubTask(false);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Flex>
+                    </Box>
+                  ) : (
+                    <Button
+                      variant="solid"
+                      onClick={() => {
+                        setIsOpenAddSubTask(true);
+                      }}
+                      leftIcon={<Icon as={FaPlus} />}
+                      mb={4}
+                    >
+                      Add Requirement
+                    </Button>
+                  )
+                ) : null}
                 <FormControl isInvalid={errors.description}>
                   <Controller
                     control={control}
@@ -583,7 +688,8 @@ const TaskEditModal = ({
                       RE-OPEN
                     </Button>
                   ) : selectedTask?.reporter?._id === userInfo?._id &&
-                    (currentTask?.isClose || currentTask?.isResolve) ? (
+                    currentTask?.subtasks?.filter(t => t.isRejected).length &&
+                    currentTask?.isDone ? (
                     <Button
                       colorScheme="yellow"
                       mr={3}
@@ -627,8 +733,7 @@ const TaskEditModal = ({
                   ) : null}
                   {selectedTask?.reporter?._id === userInfo?._id &&
                   currentTask?.isDone &&
-                  !currentTask?.isClose &&
-                  !currentTask?.isResolve ? (
+                  !currentTask?.subtasks?.filter(st => st.isRejected).length ? (
                     <Button
                       colorScheme="green"
                       mr={3}
@@ -647,43 +752,46 @@ const TaskEditModal = ({
                     </Button>
                   ) : null}
                   {selectedTask?.reporter?._id === userInfo?._id &&
-                  !currentTask?.isClose &&
-                  !currentTask?.isResolve ? (
+                  currentTask?.isWorking ? (
                     <Button colorScheme="red" mr={3} onClick={() => {}}>
                       CLOSE
                     </Button>
                   ) : null}
                 </Flex>
-                <FormControl isInvalid={errors.status}>
-                  <Controller
-                    control={control}
-                    render={({ field: { onChange, onBlur, value, name } }) => (
-                      <GFormMenu
-                        title="Status"
-                        placeholder="The column this task will belong to"
-                        value={value}
-                        data={columnList}
-                        itemTextProp="name"
-                        valueTextProp="name"
-                        noCapOntext
-                        onClick={item => onChange(item)}
-                        editable={isAbleEdit ? true : false}
-                        // variant={isAbleEdit ? 'solid' : 'ghost'}
-                      />
-                    )}
-                    name="status"
-                    defaultValue={columnList[0]}
-                    rules={{
-                      required: {
-                        value: true,
-                        message: 'Status is required',
-                      },
-                    }}
-                  />
-                  <FormErrorMessage mb={4}>
-                    {errors.status && errors.status.message}
-                  </FormErrorMessage>
-                </FormControl>
+                {currentTask?.isWorking ? (
+                  <FormControl isInvalid={errors.status}>
+                    <Controller
+                      control={control}
+                      render={({
+                        field: { onChange, onBlur, value, name },
+                      }) => (
+                        <GFormMenu
+                          title="Status"
+                          placeholder="The column this task will belong to"
+                          value={value}
+                          data={columnList}
+                          itemTextProp="name"
+                          valueTextProp="name"
+                          noCapOntext
+                          onClick={item => onChange(item)}
+                          editable={isAbleEdit ? true : false}
+                          // variant={isAbleEdit ? 'solid' : 'ghost'}
+                        />
+                      )}
+                      name="status"
+                      defaultValue={columnList[0]}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: 'Status is required',
+                        },
+                      }}
+                    />
+                    <FormErrorMessage mb={4}>
+                      {errors.status && errors.status.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                ) : null}
                 <Box borderRadius={8} borderColor="gray.400" borderWidth={1.5}>
                   <Box
                     borderColor="gray.400"
@@ -850,6 +958,7 @@ const TaskEditModal = ({
               <Button
                 variant="ghost"
                 onClick={() => {
+                  onResetAddSubTask();
                   onClose();
                   reset();
                   clearErrors();

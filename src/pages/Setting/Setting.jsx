@@ -109,7 +109,7 @@ const Setting = () => {
   };
 
   return (
-    <GLayout isHasSideBar>
+    <GLayout isHasSideBar boxProps={{ overflowY: 'hidden' }}>
       <Box
         pl={8}
         pr={8}

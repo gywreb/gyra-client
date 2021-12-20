@@ -42,11 +42,13 @@ export const TASK_API = {
   getTaskListByProject: projectId => `${TASK_ROUTE}/${projectId}`,
   moveTaskInBoard: taskId => `${TASK_ROUTE}/move-task/${taskId}`,
   editTask: taskId => `${TASK_ROUTE}/edit-task/${taskId}`,
-  toggleTask: `${TASK_ROUTE}/toggle-subtask`,
+  toggleSubTask: `${TASK_ROUTE}/toggle-subtask`,
+  toggleRejectSubTask: `${TASK_ROUTE}/toggle-reject-subtask`,
   doneTask: taskId => `${TASK_ROUTE}/done-task/${taskId}`,
   resolveTask: taskId => `${TASK_ROUTE}/resolve-task/${taskId}`,
   closeTask: taskId => `${TASK_ROUTE}/close-task/${taskId}`,
   reopenTask: taskId => `${TASK_ROUTE}/reopen-task/${taskId}`,
+  addSubTask: taskId => `${TASK_ROUTE}/add-subtask/${taskId}`,
 };
 
 export const USER_API = {

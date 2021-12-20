@@ -62,12 +62,6 @@ const FixedColumnCard = ({
       >
         {getTaskLoading ? (
           <GSpinner width="100%" height={10} boxSize={8} />
-        ) : currentFilterMember ? (
-          column.tasks
-            .filter(task => task.assignee._id === currentFilterMember._id)
-            .map((task, index) =>
-              renderTaskComponent ? () => renderTaskComponent(null, task) : null
-            )
         ) : (
           column.tasks.map((task, index) =>
             renderTaskComponent ? renderTaskComponent(null, task) : null

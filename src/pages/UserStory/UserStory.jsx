@@ -290,7 +290,7 @@ const UserStory = () => {
   };
 
   return (
-    <GLayout isHasSideBar>
+    <GLayout isHasSideBar boxProps={{ overflowY: 'hidden' }}>
       {getLoading || getTaskLoading ? (
         <GSpinner />
       ) : (

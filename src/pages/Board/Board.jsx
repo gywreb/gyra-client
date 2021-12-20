@@ -643,8 +643,11 @@ const Board = () => {
               </Droppable>
             </DragDropContext>
           )}
+          <Text mt={8} fontSize="lg" fontWeight="500">
+            Review & Results
+          </Text>
           <Flex
-            mt={8}
+            mt={4}
             pb={6}
             overflowX="auto"
             minHeight="65%"
