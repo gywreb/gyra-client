@@ -111,17 +111,20 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
             alignSelf="flex-end"
           />
 
-          {task?.isDone ||
-          task?.isResolve ||
-          task?.isClose ||
-          !userInfo?._id === task?.reporter?._id ||
-          !userInfo?._id === task?.assignee?._id ? (
+          {task?.isDone || task?.isResolve || task?.isClose ? (
             <Flex>
               <Text fontSize="xs" fontStyle="italic" color="gray.500">
                 Read-only
               </Text>
             </Flex>
-          ) : null}
+          ) : userInfo?._id == task?.reporter?._id ||
+            userInfo?._id == task?.assignee?._id ? null : (
+            <Flex>
+              <Text fontSize="xs" fontStyle="italic" color="gray.500">
+                Read-only
+              </Text>
+            </Flex>
+          )}
         </Flex>
       </Flex>
     </Box>

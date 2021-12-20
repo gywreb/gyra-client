@@ -70,11 +70,11 @@ const fixedColumns = [
     bgColor: 'green.300',
     key: FIXED_COUMN_TYPE.RESOLVE,
   },
-  {
-    name: 'close'.toUpperCase(),
-    bgColor: 'red.300',
-    key: FIXED_COUMN_TYPE.CLOSE,
-  },
+  // {
+  //   name: 'close'.toUpperCase(),
+  //   bgColor: 'red.300',
+  //   key: FIXED_COUMN_TYPE.CLOSE,
+  // },
 ];
 
 const Board = () => {
@@ -83,6 +83,7 @@ const Board = () => {
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [taskEditOpen, setTaskEditOpen] = useState(false);
+  const [isShowAddColumn, setIsShowAddColumn] = useState(true);
   const [inviteMembersOpen, setInviteMembersOpen] = useState(false);
   const { isGetProjectDetail, currentProject } = useSelector(
     state => state.project
@@ -453,9 +454,16 @@ const Board = () => {
                 >
                   Only My Tasks
                 </Button>
-                {/* <Button ml={4} variant="solid" onClick={() => {}}>
-                  Recently Updated
-                </Button> */}
+                {currentProject?.manager?._id === userInfo?._id ? (
+                  <Button
+                    ml={4}
+                    variant="solid"
+                    onClick={() => setIsShowAddColumn(prev => !prev)}
+                    colorScheme={isShowAddColumn ? 'gray' : 'green'}
+                  >
+                    {isShowAddColumn ? 'Hide Add Column' : 'Show Add Column'}
+                  </Button>
+                ) : null}
               </Flex>
             </Flex>
             {currentUserStoryList?.length && columnList?.length ? (
@@ -577,7 +585,8 @@ const Board = () => {
                     {boardProvided.placeholder}
 
                     {!(
-                      currentProject?.manager?._id === userInfo?._id
+                      currentProject?.manager?._id === userInfo?._id &&
+                      isShowAddColumn
                     ) ? null : addingColumn ? (
                       <Form
                         p={4}
@@ -637,13 +646,41 @@ const Board = () => {
                         </Text>
                       </Flex>
                     )}
+                    {fixedColumns.map(column => (
+                      <FixedColumnCard
+                        column={{
+                          ...column,
+                          tasks: taskListByProject?.filter(
+                            task => task[column.key]
+                          ),
+                        }}
+                        currentFilterMember={currentFilterMember}
+                        getTaskLoading={getTaskLoading}
+                        taskListByProject={taskListByProject}
+                        renderTaskComponent={(taskProvided, task, index) => (
+                          <TaskCard
+                            index={index}
+                            taskProvided={taskProvided}
+                            task={task}
+                            key={task?._id}
+                            onClick={() => {
+                              setSelectedTask(task);
+                              setTaskEditOpen(true);
+                            }}
+                          />
+                        )}
+                        key={column.key}
+                        bgColor={column.bgColor}
+                        titleStyle={{ color: 'white', fontWeight: '600' }}
+                      />
+                    ))}
                     {/* <AddColumnAnchor ref={addColumnAnchorRef} /> */}
                   </Flex>
                 )}
               </Droppable>
             </DragDropContext>
           )}
-          <Text mt={8} fontSize="lg" fontWeight="500">
+          {/* <Text mt={8} fontSize="lg" fontWeight="500">
             Review & Results
           </Text>
           <Flex
@@ -678,34 +715,7 @@ const Board = () => {
                 visibility: 'hidden',
               },
             }}
-          >
-            {fixedColumns.map(column => (
-              <FixedColumnCard
-                column={{
-                  ...column,
-                  tasks: taskListByProject?.filter(task => task[column.key]),
-                }}
-                currentFilterMember={currentFilterMember}
-                getTaskLoading={getTaskLoading}
-                taskListByProject={taskListByProject}
-                renderTaskComponent={(taskProvided, task, index) => (
-                  <TaskCard
-                    index={index}
-                    taskProvided={taskProvided}
-                    task={task}
-                    key={task?._id}
-                    onClick={() => {
-                      setSelectedTask(task);
-                      setTaskEditOpen(true);
-                    }}
-                  />
-                )}
-                key={column.key}
-                bgColor={column.bgColor}
-                titleStyle={{ color: 'white', fontWeight: '600' }}
-              />
-            ))}
-          </Flex>
+          ></Flex> */}
         </Box>
       )}
       <TaskCreateModal

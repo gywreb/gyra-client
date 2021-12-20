@@ -217,6 +217,13 @@ const Setting = () => {
                   {errors.key && errors.key.message}
                 </FormErrorMessage>
               </FormControl>
+              <GTextInput
+                autoComplete="off"
+                title="Project Manager"
+                readOnlyContent={currentProject?.manager?.username}
+                leftImg={`https://avatars.dicebear.com/api/gridy/${currentProject?.manager?.username}.svg`}
+                leftImgIsAvatar
+              />
               <FormControl isInvalid={errors.description}>
                 <Controller
                   control={control}

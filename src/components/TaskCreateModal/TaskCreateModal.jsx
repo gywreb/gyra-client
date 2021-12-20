@@ -216,6 +216,41 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
                 {errors.userStory && errors.userStory.message}
               </FormErrorMessage>
             </FormControl>
+            <FormControl isInvalid={errors.status}>
+              <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value, name } }) => (
+                  <GFormMenu
+                    noIcon
+                    isRequired
+                    title="Status"
+                    placeholder="The column this task will belong to"
+                    value={value}
+                    data={columnList}
+                    itemTextProp="name"
+                    valueTextProp="name"
+                    noCapOntext
+                    onClick={item => onChange(item)}
+                    tooltip={'Status is the column this task will belong to'}
+                    disabled
+                  />
+                )}
+                name="status"
+                defaultValue={{
+                  ...columnList[0],
+                  name: columnList[0]?.name.toUpperCase(),
+                }}
+                rules={{
+                  required: {
+                    value: true,
+                    message: 'Status is required',
+                  },
+                }}
+              />
+              <FormErrorMessage mb={4}>
+                {errors.status && errors.status.message}
+              </FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={errors.name}>
               <Controller
                 control={control}
@@ -456,37 +491,6 @@ const TaskCreateModal = ({ isOpen, onClose }) => {
               />
               <FormErrorMessage mb={4}>
                 {errors.assignee && errors.assignee.message}
-              </FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={errors.status}>
-              <Controller
-                control={control}
-                render={({ field: { onChange, onBlur, value, name } }) => (
-                  <GFormMenu
-                    isRequired
-                    title="Status"
-                    placeholder="The column this task will belong to"
-                    value={value}
-                    data={columnList}
-                    itemTextProp="name"
-                    valueTextProp="name"
-                    noCapOntext
-                    onClick={item => onChange(item)}
-                    tooltip={'Status is the column this task will belong to'}
-                    disabled
-                  />
-                )}
-                name="status"
-                defaultValue={columnList[0]}
-                rules={{
-                  required: {
-                    value: true,
-                    message: 'Status is required',
-                  },
-                }}
-              />
-              <FormErrorMessage mb={4}>
-                {errors.status && errors.status.message}
               </FormErrorMessage>
             </FormControl>
           </Form>

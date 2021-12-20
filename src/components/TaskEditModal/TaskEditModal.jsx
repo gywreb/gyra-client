@@ -60,6 +60,7 @@ const TaskEditModal = ({
   onClose,
   selectedTask,
   unableEdit = false,
+  unableChangeStatus = false,
 }) => {
   const { userInfo } = useSelector(state => state.auth);
   const { currentProject } = useSelector(state => state.project);
@@ -93,7 +94,7 @@ const TaskEditModal = ({
     priority: selectedTask?.priority || '',
     reporter: selectedTask?.reporter || '',
     assignee: selectedTask?.assignee || '',
-    status: selectedTask?.status?.name || '',
+    status: selectedTask?.status?.name.toUpperCase() || '',
     type: selectedTask?.type || '',
     description: selectedTask?.description || '',
     userStory: selectedTask?.userStory || '',
@@ -181,7 +182,8 @@ const TaskEditModal = ({
       requestCommentData(1, false);
       for (let key in selectedTask) {
         if (key in formDefaultVal) {
-          if (key === 'status') setValue(key, selectedTask[key].name);
+          if (key === 'status')
+            setValue(key, selectedTask[key].name.toUpperCase());
           else setValue(key, selectedTask[key]);
         }
       }
@@ -437,9 +439,9 @@ const TaskEditModal = ({
                           />
                         ) : null}
                       </Flex>
-                      {selectedTask?.assignee?._id === userInfo?._id &&
+                      {currentTask?.assignee?._id === userInfo?._id &&
                       isAbleEdit ? (
-                        currentTask?.status._id ===
+                        currentTask?.status?._id ===
                         currentProject?.columns[0] ? null : (
                           <Flex alignItems="center">
                             <Button
@@ -494,8 +496,9 @@ const TaskEditModal = ({
                     </Flex>
                   ))}
                 </Box>
-                {selectedTask?.reporter?._id === userInfo?._id &&
-                currentTask?.status?._id === currentProject?.columns[0] ? (
+                {currentTask?.reporter?._id === userInfo?._id &&
+                currentTask?.status?._id === currentProject?.columns[0] &&
+                !unableChangeStatus ? (
                   isOpenAddSubTask ? (
                     <Box>
                       <Input
@@ -667,97 +670,100 @@ const TaskEditModal = ({
                 </Box>
               </Box>
               <Box w="30%" ml={8} maxW="30%">
-                <Flex alignItems="center" mb={3}>
-                  {selectedTask?.assignee?._id === userInfo?._id &&
-                  currentTask?.isDone ? (
-                    <Button
-                      colorScheme="yellow"
-                      mr={3}
-                      isLoading={reopenTaskLoading}
-                      onClick={() =>
-                        dispatch(
-                          reopenTask(
-                            selectedTask?._id,
-                            columnList[0]?._id,
-                            toast,
-                            closeModalOnSuccess
-                          )
-                        )
-                      }
-                    >
-                      RE-OPEN
-                    </Button>
-                  ) : selectedTask?.reporter?._id === userInfo?._id &&
-                    currentTask?.subtasks?.filter(t => t.isRejected).length &&
+                {!unableChangeStatus ? (
+                  <Flex alignItems="center" mb={3}>
+                    {currentTask?.assignee?._id === userInfo?._id &&
                     currentTask?.isDone ? (
-                    <Button
-                      colorScheme="yellow"
-                      mr={3}
-                      isLoading={reopenTaskLoading}
-                      onClick={() =>
-                        dispatch(
-                          reopenTask(
-                            selectedTask?._id,
-                            columnList[0]?._id,
-                            toast,
-                            closeModalOnSuccess
+                      <Button
+                        colorScheme="yellow"
+                        mr={3}
+                        isLoading={reopenTaskLoading}
+                        onClick={() =>
+                          dispatch(
+                            reopenTask(
+                              selectedTask?._id,
+                              columnList[0]?._id,
+                              toast,
+                              closeModalOnSuccess
+                            )
                           )
-                        )
-                      }
-                    >
-                      RE-OPEN
-                    </Button>
-                  ) : null}
-                  {selectedTask?.assignee?._id === userInfo?._id &&
-                  currentTask?.subtasks?.filter(st => st.isDone).length ===
-                    currentTask?.subtasks?.length &&
-                  selectedTask?.status._id ==
-                    columnList[columnList.length - 1]._id &&
-                  currentTask?.isWorking ? (
-                    <Button
-                      colorScheme="blue"
-                      mr={3}
-                      isLoading={doneTaskLoading}
-                      onClick={() =>
-                        dispatch(
-                          doneTask(
-                            selectedTask?._id,
-                            toast,
-                            closeModalOnSuccess
+                        }
+                      >
+                        RE-OPEN
+                      </Button>
+                    ) : currentTask?.reporter?._id === userInfo?._id &&
+                      currentTask?.subtasks?.filter(t => t.isRejected).length &&
+                      currentTask?.isDone ? (
+                      <Button
+                        colorScheme="yellow"
+                        mr={3}
+                        isLoading={reopenTaskLoading}
+                        onClick={() =>
+                          dispatch(
+                            reopenTask(
+                              selectedTask?._id,
+                              columnList[0]?._id,
+                              toast,
+                              closeModalOnSuccess
+                            )
                           )
-                        )
-                      }
-                    >
-                      DONE
-                    </Button>
-                  ) : null}
-                  {selectedTask?.reporter?._id === userInfo?._id &&
-                  currentTask?.isDone &&
-                  !currentTask?.subtasks?.filter(st => st.isRejected).length ? (
-                    <Button
-                      colorScheme="green"
-                      mr={3}
-                      isLoading={resolveTaskLoading}
-                      onClick={() =>
-                        dispatch(
-                          resolveTask(
-                            selectedTask?._id,
-                            toast,
-                            closeModalOnSuccess
+                        }
+                      >
+                        RE-OPEN
+                      </Button>
+                    ) : null}
+                    {currentTask?.assignee?._id === userInfo?._id &&
+                    currentTask?.subtasks?.filter(st => st.isDone).length ===
+                      currentTask?.subtasks?.length &&
+                    currentTask?.status._id ==
+                      columnList[columnList.length - 1]?._id &&
+                    currentTask?.isWorking ? (
+                      <Button
+                        colorScheme="blue"
+                        mr={3}
+                        isLoading={doneTaskLoading}
+                        onClick={() =>
+                          dispatch(
+                            doneTask(
+                              selectedTask?._id,
+                              toast,
+                              closeModalOnSuccess
+                            )
                           )
-                        )
-                      }
-                    >
-                      RESOLVE
-                    </Button>
-                  ) : null}
-                  {selectedTask?.reporter?._id === userInfo?._id &&
-                  currentTask?.isWorking ? (
-                    <Button colorScheme="red" mr={3} onClick={() => {}}>
-                      CLOSE
-                    </Button>
-                  ) : null}
-                </Flex>
+                        }
+                      >
+                        DONE
+                      </Button>
+                    ) : null}
+                    {currentTask?.reporter?._id === userInfo?._id &&
+                    currentTask?.isDone &&
+                    !currentTask?.subtasks?.filter(st => st.isRejected)
+                      .length ? (
+                      <Button
+                        colorScheme="green"
+                        mr={3}
+                        isLoading={resolveTaskLoading}
+                        onClick={() =>
+                          dispatch(
+                            resolveTask(
+                              selectedTask?._id,
+                              toast,
+                              closeModalOnSuccess
+                            )
+                          )
+                        }
+                      >
+                        RESOLVE
+                      </Button>
+                    ) : null}
+                    {/* {selectedTask?.reporter?._id === userInfo?._id &&
+                    currentTask?.isWorking ? (
+                      <Button colorScheme="red" mr={3} onClick={() => {}}>
+                        CLOSE
+                      </Button>
+                    ) : null} */}
+                  </Flex>
+                ) : null}
                 {currentTask?.isWorking ? (
                   <FormControl isInvalid={errors.status}>
                     <Controller
@@ -769,7 +775,10 @@ const TaskEditModal = ({
                           title="Status"
                           placeholder="The column this task will belong to"
                           value={value}
-                          data={columnList}
+                          data={columnList.map(c => ({
+                            ...c,
+                            name: c.name.toUpperCase(),
+                          }))}
                           itemTextProp="name"
                           valueTextProp="name"
                           noCapOntext
@@ -779,7 +788,10 @@ const TaskEditModal = ({
                         />
                       )}
                       name="status"
-                      defaultValue={columnList[0]}
+                      defaultValue={{
+                        ...columnList[0],
+                        name: columnList[0]?.name.toUpperCase(),
+                      }}
                       rules={{
                         required: {
                           value: true,
@@ -857,8 +869,8 @@ const TaskEditModal = ({
                     <GTextInput
                       autoComplete="off"
                       title="Reporter"
-                      readOnlyContent={selectedTask?.reporter?.username}
-                      leftImg={`https://avatars.dicebear.com/api/gridy/${selectedTask?.reporter?.username}.svg`}
+                      readOnlyContent={currentTask?.reporter?.username}
+                      leftImg={`https://avatars.dicebear.com/api/gridy/${currentTask?.reporter?.username}.svg`}
                       leftImgIsAvatar
                     />
                     <FormControl isInvalid={errors.assignee}>
@@ -912,7 +924,12 @@ const TaskEditModal = ({
                               </Flex>
                             )}
                             onClick={item => onChange(item)}
-                            editable={isAbleEdit ? true : false}
+                            editable={
+                              !unableEdit &&
+                              userInfo?._id === currentTask?.reporter?._id
+                                ? true
+                                : false
+                            }
                           />
                         )}
                         name="assignee"
@@ -932,10 +949,10 @@ const TaskEditModal = ({
                 </Box>
                 <Box mt={4}>
                   <Text fontSize="xs" color="gray.500" fontWeight="500">
-                    {`Created at ${format(selectedTask?.createdAt)}`}
+                    {`Created at ${format(currentTask?.createdAt)}`}
                   </Text>
                   <Text fontSize="xs" color="gray.500" mt={1} fontWeight="500">
-                    {`Updated at ${format(selectedTask?.updatedAt)}`}
+                    {`Updated at ${format(currentTask?.updatedAt)}`}
                   </Text>
                 </Box>
               </Box>

@@ -45,6 +45,7 @@ import UserStoryCreateModal from 'src/components/UserStoryCreateModal/UserStoryC
 import { getUserStoryList } from 'src/store/userstory/action';
 import { getTaskListByProject } from 'src/store/task/action';
 import { TASK_FIXED_STATUS_UI, TASK_TYPES_UI } from 'src/configs/constants';
+import TaskEditModal from 'src/components/TaskEditModal/TaskEditModal';
 
 const Span = chakra('span', {
   baseStyle: {},
@@ -67,6 +68,9 @@ const UserStory = () => {
   const { taskListByProject, getLoading: getTaskLoading } = useSelector(
     state => state.task
   );
+  const [taskEditOpen, setTaskEditOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const { userInfo } = useSelector(state => state.auth);
 
   const toast = useToast();
   const dispatch = useDispatch();
@@ -190,7 +194,7 @@ const UserStory = () => {
                 }
               </Text>
             </Flex>
-            <Flex alignItems="center" ml={6}>
+            {/* <Flex alignItems="center" ml={6}>
               <Badge fontSize="sm" colorScheme="red">
                 {TASK_FIXED_STATUS_UI.isClose.label}:
               </Badge>
@@ -202,7 +206,7 @@ const UserStory = () => {
                   ).length
                 }
               </Text>
-            </Flex>
+            </Flex> */}
           </Flex>
           <Text fontWeight="500" mb={2}>
             Description
@@ -234,6 +238,14 @@ const UserStory = () => {
                       borderBottomWidth={
                         index === item.tasks.length - 1 ? 1.2 : 0
                       }
+                      borderColor="gray.300"
+                      _hover={{ bgColor: 'gray.100' }}
+                      transition="all .3s"
+                      cursor="pointer"
+                      onClick={() => {
+                        setSelectedTask(task);
+                        setTaskEditOpen(true);
+                      }}
                     >
                       <Flex alignItems="center" justifyContent="space-between">
                         <Flex alignItems="center">
@@ -346,7 +358,7 @@ const UserStory = () => {
               ?.name || 'Board'}
           </Text>
           <Flex alignItems="center" mt={4} justifyContent="space-between">
-            <InputGroup mr={4}>
+            <InputGroup>
               <Input
                 placeholder="Search user stories..."
                 variant="outline"
@@ -363,17 +375,20 @@ const UserStory = () => {
                 </Button>
               </InputRightElement>
             </InputGroup>
-            <Button
-              variant="solid"
-              colorScheme="orange"
-              rightIcon={<Icon as={FaPlus} color="white" />}
-              onClick={onOpen}
-            >
-              Create
-            </Button>
+            {currentProject?.manager?._id === userInfo?._id ? (
+              <Button
+                ml={4}
+                variant="solid"
+                colorScheme="orange"
+                rightIcon={<Icon as={FaPlus} color="white" />}
+                onClick={onOpen}
+              >
+                Create
+              </Button>
+            ) : null}
           </Flex>
           <Box mt={9} width="100%">
-            <Accordion defaultIndex={[0]} allowToggle>
+            <Accordion defaultIndex={[0]} allowToggle borderColor="orange.300">
               {currentUserStoryList?.map(us => renderUserStoryItem(us))}
             </Accordion>
           </Box>
@@ -383,6 +398,18 @@ const UserStory = () => {
         isOpen={isOpen}
         onClose={onClose}
         key="create-user-story"
+      />
+      <TaskEditModal
+        isOpen={taskEditOpen}
+        onClose={() => {
+          setTaskEditOpen(false);
+          setSelectedTask(null);
+        }}
+        key={'task-edit-modal'}
+        selectedTask={selectedTask}
+        unableEdit={true}
+        unableChangeStatus={true}
+        userInfo={userInfo}
       />
     </GLayout>
   );
