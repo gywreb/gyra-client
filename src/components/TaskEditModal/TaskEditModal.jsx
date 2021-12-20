@@ -462,7 +462,11 @@ const TaskEditModal = ({
                                 );
                               }}
                             >
-                              {st.isDone ? 'Undo' : 'Done'}
+                              {st.isDone
+                                ? 'Undo'
+                                : st.isRejected
+                                ? 'Resolve'
+                                : 'Done'}
                             </Button>
                           </Flex>
                         )
