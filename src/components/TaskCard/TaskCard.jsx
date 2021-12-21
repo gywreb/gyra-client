@@ -28,6 +28,7 @@ const TaskCard = ({ taskProvided, task, onClick }) => {
       _active={{ bgColor: 'orange.100' }}
       transition="all 0.2s"
       onClick={onClick}
+      maxW={BaseStyles.columnWidth - 16}
       {...draggableProps}
     >
       <Flex justifyContent="space-between">
