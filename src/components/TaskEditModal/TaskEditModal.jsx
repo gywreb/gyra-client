@@ -696,7 +696,7 @@ const TaskEditModal = ({
                         RE-OPEN
                       </Button>
                     ) : currentTask?.reporter?._id === userInfo?._id &&
-                      currentTask?.subtasks?.filter(t => t.isRejected).length &&
+                      // currentTask?.subtasks?.filter(t => t.isRejected).length &&
                       currentTask?.isDone ? (
                       <Button
                         colorScheme="yellow"
